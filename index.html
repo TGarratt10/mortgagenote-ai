@@ -1158,17 +1158,17 @@ async function generateNote(){
   const prompt = buildPrompt();
  
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
+    const res = await fetch('/api/generate',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1500,
-        messages:[{role:'user',content:prompt}]
+        prompt:prompt,
+        
+        
       })
     });
     const data = await res.json();
-    const text = data.content?.find(b=>b.type==='text')?.text;
+    const text = data.result;
  
     if(!text || data.error){
       throw new Error(data.error?.message || 'No response from AI');
