@@ -4,519 +4,911 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>MortgageNote AI — FCA Suitability Notes in 60 Seconds</title>
-<meta name="description" content="AI-generated FCA-compliant mortgage suitability notes for UK advisers. Save 2+ hours per day on compliance documentation. Consumer Duty ready."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --navy:#08142a;--navy2:#0f1f3d;--gold:#c9a84c;--gold2:#e8d5a3;
+  --navy:#08142a;--navy2:#0f1f3d;--navy3:#162240;
+  --gold:#c9a84c;--gold2:#e8d5a3;--gold3:rgba(201,168,76,0.15);
   --white:#fff;--muted:#8899aa;--border:rgba(201,168,76,0.2);--text:#e8e8f0;
-  --surface:rgba(255,255,255,0.03);--green-bg:rgba(34,197,94,0.12);--green-text:#86efac;
+  --surface:rgba(255,255,255,0.03);--surface2:rgba(255,255,255,0.06);
+  --green-bg:rgba(34,197,94,0.12);--green:#86efac;
+  --red-bg:rgba(239,68,68,0.12);--red:#fca5a5;
+  --yellow-bg:rgba(251,191,36,0.12);--yellow:#fcd34d;
 }
 html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--text);overflow-x:hidden}
-@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--text);overflow-x:hidden;min-height:100vh}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 @keyframes spin{to{transform:rotate(360deg)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
  
-/* ── SHARED BUTTONS ── */
-.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s;text-decoration:none}
-.btn-gold{background:var(--gold);color:var(--navy)}.btn-gold:hover{background:#b8933e}
+/* PAGES */
+.page{display:none;min-height:100vh;animation:fadeIn 0.35s ease}
+.page.active{display:block}
+.page.flex{display:none}.page.flex.active{display:flex}
+ 
+/* SHARED INPUTS */
+.field{margin-bottom:18px}
+.field label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:7px;font-weight:500}
+.field input,.field select,.field textarea{width:100%;padding:12px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:all 0.2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold);background:rgba(201,168,76,0.04);box-shadow:0 0 0 3px rgba(201,168,76,0.08)}
+.field textarea{resize:vertical;min-height:80px;line-height:1.5}
+.field select{background:var(--navy2)}
+.field .helper{font-size:12px;color:var(--muted);margin-top:5px}
+.field .err{font-size:12px;color:#f87171;margin-top:5px;display:none}
+.field.error input,.field.error select{border-color:#ef4444}
+.field.error .err{display:block}
+.field.success input{border-color:#22c55e}
+ 
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border-radius:9px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s;text-decoration:none;white-space:nowrap}
+.btn-gold{background:var(--gold);color:var(--navy);box-shadow:0 2px 12px rgba(201,168,76,0.25)}.btn-gold:hover{background:#b8933e;transform:translateY(-1px)}
 .btn-outline{background:transparent;color:var(--gold2);border:1px solid var(--border)}.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-ghost{background:rgba(255,255,255,0.05);color:var(--text);border:1px solid rgba(255,255,255,0.08)}.btn-ghost:hover{background:rgba(255,255,255,0.08)}
 .btn-danger{background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b}.btn-danger:hover{background:#991b1b}
-.btn-sm{padding:7px 14px;font-size:13px}
+.btn-full{width:100%}
+.btn-sm{padding:8px 16px;font-size:13px}
+.btn:disabled{opacity:0.45;cursor:not-allowed;transform:none!important}
+.spin-icon{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite}
+ 
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--navy2);border:1px solid var(--gold);border-radius:10px;padding:14px 20px;font-size:14px;color:var(--gold2);display:none;animation:fadeUp 0.3s ease;box-shadow:0 8px 32px rgba(0,0,0,0.4);max-width:320px}
+.toast.show{display:block}
+.toast.err{border-color:#ef4444;color:#fca5a5}
+ 
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--navy2);border:1px solid var(--border);border-radius:16px;padding:36px;max-width:500px;width:92%;animation:fadeUp 0.3s ease;position:relative;max-height:90vh;overflow-y:auto}
+.modal-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;line-height:1}.modal-close:hover{color:var(--white)}
+.modal h2{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--white);margin-bottom:6px}
+.modal p{font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.6}
+ 
+/* BADGE PILLS */
+.badge{display:inline-flex;align-items:center;font-size:11px;padding:4px 10px;border-radius:20px;font-weight:500}
+.badge-pro{background:rgba(201,168,76,0.15);color:var(--gold)}
+.badge-free{background:var(--surface2);color:var(--muted)}
+.badge-team{background:rgba(59,130,246,0.15);color:#93c5fd}
+.badge-active{background:var(--green-bg);color:var(--green)}
+.badge-trial{background:var(--yellow-bg);color:var(--yellow)}
+.badge-pending{background:rgba(251,146,60,0.15);color:#fdba74}
+.badge-churned{background:var(--red-bg);color:var(--red)}
+.badge-verified{background:var(--green-bg);color:var(--green)}
+.badge-unverified{background:var(--yellow-bg);color:var(--yellow)}
  
 /* ════════════════════════════════════
    LANDING PAGE
 ════════════════════════════════════ */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(8,20,42,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
-.nav-logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--white)}
-.nav-logo span{color:var(--gold)}
-.nav-links{display:flex;align-items:center;gap:28px}
-.nav-links a{color:var(--muted);font-size:14px;text-decoration:none;transition:color 0.2s}.nav-links a:hover{color:var(--gold)}
-.nav-cta{background:var(--gold);color:var(--navy);padding:9px 20px;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.2s}.nav-cta:hover{background:#b8933e}
+#page-landing{display:none}
+#page-landing.active{display:block}
  
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 20px 80px;position:relative;overflow:hidden}
+.lp-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(8,20,42,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--white)}.nav-logo span{color:var(--gold)}
+.lp-nav-links{display:flex;align-items:center;gap:26px}
+.lp-nav-links a{color:var(--muted);font-size:14px;text-decoration:none;transition:color 0.2s}.lp-nav-links a:hover{color:var(--gold)}
+.lp-nav-right{display:flex;align-items:center;gap:10px}
+ 
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 20px 80px;position:relative}
 .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(201,168,76,0.08) 0%,transparent 60%);pointer-events:none}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(201,168,76,0.1);border:1px solid var(--border);color:var(--gold2);font-size:12px;letter-spacing:1px;text-transform:uppercase;padding:7px 16px;border-radius:30px;margin-bottom:28px;animation:fadeUp 0.6s ease both}
 .badge-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
-h1{font-family:'Cormorant Garamond',serif;font-size:clamp(42px,7vw,82px);font-weight:500;color:var(--white);line-height:1.1;max-width:800px;margin-bottom:24px;animation:fadeUp 0.6s ease 0.1s both}
-h1 em{font-style:italic;color:var(--gold)}
-.hero-sub{font-size:18px;font-weight:300;color:var(--muted);max-width:520px;line-height:1.6;margin-bottom:40px;animation:fadeUp 0.6s ease 0.2s both}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(42px,7vw,80px);font-weight:500;color:var(--white);line-height:1.1;max-width:800px;margin-bottom:22px;animation:fadeUp 0.6s ease 0.1s both}
+.hero h1 em{font-style:italic;color:var(--gold)}
+.hero-sub{font-size:18px;font-weight:300;color:var(--muted);max-width:500px;line-height:1.6;margin-bottom:38px;animation:fadeUp 0.6s ease 0.2s both}
 .hero-sub strong{color:var(--gold2);font-weight:400}
-.hero-actions{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;animation:fadeUp 0.6s ease 0.3s both}
-.btn-hero{padding:14px 32px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;text-decoration:none;cursor:pointer;transition:all 0.25s;display:inline-block;border:none}
-.btn-gold-hero{background:var(--gold);color:var(--navy);box-shadow:0 4px 20px rgba(201,168,76,0.3)}.btn-gold-hero:hover{background:#b8933e;transform:translateY(-1px)}
-.btn-ghost-hero{background:transparent;color:var(--gold2);border:1px solid var(--border)}.btn-ghost-hero:hover{border-color:var(--gold);color:var(--gold)}
-.hero-proof{margin-top:60px;display:flex;align-items:center;gap:24px;font-size:13px;color:var(--muted);animation:fadeUp 0.6s ease 0.4s both;flex-wrap:wrap;justify-content:center}
-.proof-divider{width:1px;height:20px;background:var(--border)}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;animation:fadeUp 0.6s ease 0.3s both}
+.hero-proof{margin-top:56px;display:flex;align-items:center;gap:24px;font-size:13px;color:var(--muted);flex-wrap:wrap;justify-content:center;animation:fadeUp 0.6s ease 0.4s both}
+.proof-div{width:1px;height:18px;background:var(--border)}
 .proof-item strong{color:var(--gold2);font-size:20px;display:block;font-family:'Cormorant Garamond',serif}
  
-.lp-section{padding:90px 20px;max-width:1100px;margin:0 auto}
-.section-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
-.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,4vw,52px);font-weight:500;color:var(--white);line-height:1.2;margin-bottom:20px}
-.section-sub{font-size:17px;color:var(--muted);max-width:520px;line-height:1.6;margin-bottom:50px}
+.lp-sec{padding:80px 20px;max-width:1100px;margin:0 auto}
+.sec-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.sec-h{font-family:'Cormorant Garamond',serif;font-size:clamp(30px,4vw,50px);font-weight:500;color:var(--white);line-height:1.2;margin-bottom:16px}
+.sec-sub{font-size:16px;color:var(--muted);max-width:500px;line-height:1.6;margin-bottom:44px}
  
-.pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.pain-card{background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:28px;transition:border-color 0.3s}.pain-card:hover{border-color:var(--border)}
-.pain-icon{font-size:28px;margin-bottom:16px;width:52px;height:52px;background:rgba(201,168,76,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center}
-.pain-title{font-size:16px;font-weight:500;color:var(--white);margin-bottom:8px}
-.pain-text{font-size:14px;color:var(--muted);line-height:1.6}
-.pain-stat{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.05);font-size:22px;font-weight:500;color:var(--gold);font-family:'Cormorant Garamond',serif}
+.pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.pain-card{background:var(--surface);border:1px solid var(--surface2);border-radius:12px;padding:26px;transition:border-color 0.3s}.pain-card:hover{border-color:var(--border)}
+.pain-icon{font-size:26px;width:50px;height:50px;background:var(--gold3);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.pain-title{font-size:15px;font-weight:500;color:var(--white);margin-bottom:8px}
+.pain-text{font-size:13px;color:var(--muted);line-height:1.6}
+.pain-stat{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.05);font-size:20px;font-weight:500;color:var(--gold);font-family:'Cormorant Garamond',serif}
 .pain-stat span{font-size:12px;color:var(--muted);font-family:'DM Sans',sans-serif;display:block;margin-top:2px}
  
-.how-section{padding:90px 20px;background:rgba(255,255,255,0.02);border-top:1px solid rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.04)}
+.how-band{padding:80px 20px;background:rgba(255,255,255,0.02);border-top:1px solid rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.04)}
 .how-inner{max-width:1100px;margin:0 auto}
-.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:12px;overflow:hidden;margin-top:50px}
-.how-step{background:var(--navy);padding:32px 24px}
-.how-num{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:400;color:rgba(201,168,76,0.15);line-height:1;margin-bottom:16px}
-.how-title{font-size:15px;font-weight:500;color:var(--white);margin-bottom:8px}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:12px;overflow:hidden;margin-top:44px}
+.how-step{background:var(--navy);padding:28px 22px}
+.how-num{font-family:'Cormorant Garamond',serif;font-size:46px;color:rgba(201,168,76,0.15);line-height:1;margin-bottom:14px}
+.how-title{font-size:14px;font-weight:500;color:var(--white);margin-bottom:7px}
 .how-text{font-size:13px;color:var(--muted);line-height:1.6}
-.how-time{margin-top:14px;font-size:12px;color:var(--gold)}
+.how-time{margin-top:12px;font-size:12px;color:var(--gold)}
  
-.features-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:50px}
-.feature-card{background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:28px;display:flex;gap:18px;transition:all 0.3s}.feature-card:hover{border-color:var(--border)}
-.feature-icon{width:44px;height:44px;flex-shrink:0;background:rgba(201,168,76,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
-.feature-title{font-size:15px;font-weight:500;color:var(--white);margin-bottom:6px}
-.feature-text{font-size:13px;color:var(--muted);line-height:1.6}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:44px}
+.feat-card{background:var(--surface);border:1px solid var(--surface2);border-radius:12px;padding:24px;display:flex;gap:16px;transition:all 0.3s}.feat-card:hover{border-color:var(--border)}
+.feat-icon{width:42px;height:42px;flex-shrink:0;background:var(--gold3);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.feat-title{font-size:14px;font-weight:500;color:var(--white);margin-bottom:5px}
+.feat-text{font-size:13px;color:var(--muted);line-height:1.6}
  
-.pricing-section{padding:90px 20px}
-.pricing-inner{max-width:960px;margin:0 auto;text-align:center}
-.pricing-grid{display:grid;grid-template-columns:1fr 1.1fr 1fr;gap:16px;margin-top:50px;align-items:start}
-.price-card{background:var(--surface);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:32px 28px;text-align:left;transition:all 0.3s}.price-card:hover{border-color:var(--border)}
-.price-card.featured{background:rgba(201,168,76,0.06);border-color:var(--gold);position:relative}
-.featured-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--navy);font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:4px 14px;border-radius:20px;white-space:nowrap}
-.price-tier{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
-.price-amount{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:500;color:var(--white);line-height:1;margin-bottom:4px}
-.price-amount sup{font-size:24px;vertical-align:super}
-.price-per{font-size:13px;color:var(--muted);margin-bottom:24px}
-.price-features{list-style:none;margin-bottom:28px}
-.price-features li{font-size:14px;color:var(--muted);padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;gap:10px}
-.price-features li::before{content:'✓';color:var(--gold);font-size:13px;flex-shrink:0}
-.price-features li.na{opacity:0.4}.price-features li.na::before{content:'–';color:var(--muted)}
-.price-btn{display:block;text-align:center;padding:12px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;width:100%;transition:all 0.2s}
-.price-btn-gold{background:var(--gold);color:var(--navy)}.price-btn-gold:hover{background:#b8933e}
-.price-btn-outline{background:transparent;color:var(--gold2);border:1px solid var(--border)}.price-btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.pricing-band{padding:80px 20px}
+.pricing-inner{max-width:940px;margin:0 auto;text-align:center}
+.pricing-grid{display:grid;grid-template-columns:1fr 1.1fr 1fr;gap:14px;margin-top:44px;align-items:start}
+.pc{background:var(--surface);border:1px solid var(--surface2);border-radius:14px;padding:28px;text-align:left;transition:all 0.3s}.pc:hover{border-color:var(--border)}
+.pc.hot{background:rgba(201,168,76,0.06);border-color:var(--gold);position:relative}
+.hot-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--navy);font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:3px 14px;border-radius:20px;white-space:nowrap}
+.pc-tier{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.pc-price{font-family:'Cormorant Garamond',serif;font-size:50px;font-weight:500;color:var(--white);line-height:1;margin-bottom:4px}
+.pc-price sup{font-size:22px;vertical-align:super}
+.pc-per{font-size:13px;color:var(--muted);margin-bottom:22px}
+.pc ul{list-style:none;margin-bottom:26px}
+.pc li{font-size:13px;color:var(--muted);padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;gap:9px}
+.pc li::before{content:'✓';color:var(--gold);font-size:12px;flex-shrink:0}
+.pc li.na{opacity:0.4}.pc li.na::before{content:'–';color:var(--muted)}
  
-.social-section{padding:80px 20px;background:rgba(201,168,76,0.04);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-.social-inner{max-width:900px;margin:0 auto;text-align:center}
-.quote{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,3vw,34px);font-style:italic;color:var(--white);line-height:1.5;max-width:720px;margin:0 auto 24px}
-.quote-author{font-size:14px;color:var(--muted)}.quote-author strong{color:var(--gold2);font-weight:500}
+.quote-band{padding:70px 20px;background:rgba(201,168,76,0.04);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.quote-inner{max-width:800px;margin:0 auto;text-align:center}
+.quote{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,3vw,32px);font-style:italic;color:var(--white);line-height:1.5;margin:0 auto 22px}
+.quote-by{font-size:13px;color:var(--muted)}.quote-by strong{color:var(--gold2);font-weight:500}
  
-.faq-section{padding:80px 20px}
-.faq-inner{max-width:680px;margin:0 auto}
-.faq-item{border-bottom:1px solid rgba(255,255,255,0.06);padding:20px 0;cursor:pointer}
-.faq-q{font-size:15px;font-weight:500;color:var(--white);display:flex;justify-content:space-between;align-items:center;gap:16px}
+.faq-sec{padding:70px 20px}
+.faq-inner{max-width:660px;margin:0 auto}
+.faq-item{border-bottom:1px solid rgba(255,255,255,0.06);padding:18px 0;cursor:pointer}
+.faq-q{font-size:14px;font-weight:500;color:var(--white);display:flex;justify-content:space-between;align-items:center;gap:14px}
 .faq-icon{color:var(--gold);font-size:20px;flex-shrink:0;transition:transform 0.3s}
-.faq-a{font-size:14px;color:var(--muted);line-height:1.7;max-height:0;overflow:hidden;transition:max-height 0.4s ease,margin 0.3s}
-.faq-item.open .faq-a{max-height:200px;margin-top:12px}
+.faq-a{font-size:13px;color:var(--muted);line-height:1.7;max-height:0;overflow:hidden;transition:max-height 0.4s,margin 0.3s}
+.faq-item.open .faq-a{max-height:200px;margin-top:10px}
 .faq-item.open .faq-icon{transform:rotate(45deg)}
  
-.cta-section{padding:100px 20px;text-align:center;position:relative;overflow:hidden}
-.cta-section::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(201,168,76,0.1) 0%,transparent 70%);pointer-events:none}
-.cta-title{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,5vw,64px);font-weight:500;color:var(--white);margin-bottom:20px}
+.cta-band{padding:90px 20px;text-align:center;position:relative;overflow:hidden}
+.cta-band::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(201,168,76,0.1) 0%,transparent 70%);pointer-events:none}
  
-footer{padding:32px 40px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);flex-wrap:wrap;gap:12px}
-footer a{color:var(--muted);text-decoration:none}.footer-links{display:flex;gap:24px}
+lp-footer{padding:28px 40px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);flex-wrap:wrap;gap:10px}
+.lp-footer{padding:28px 40px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);flex-wrap:wrap;gap:10px}
+.lp-footer a{color:var(--muted);text-decoration:none}.lp-footer-links{display:flex;gap:22px}
  
-.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.6s ease,transform 0.6s ease}
-.reveal.visible{opacity:1;transform:translateY(0)}
- 
-/* Signup modal */
-.modal-overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);align-items:center;justify-content:center}
-.modal-overlay.open{display:flex}
-.modal{background:var(--navy2);border:1px solid var(--border);border-radius:16px;padding:40px;max-width:480px;width:90%;animation:fadeUp 0.3s ease;position:relative}
-.modal-title{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--white);margin-bottom:8px}
-.modal-sub{font-size:14px;color:var(--muted);margin-bottom:28px}
-.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer}
-.mf{margin-bottom:16px}
-.mf label{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
-.mf input{width:100%;padding:12px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s}
-.mf input:focus{border-color:var(--gold)}
-.stripe-info{background:rgba(201,168,76,0.06);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:13px;color:var(--gold2);margin-top:14px}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity 0.6s ease,transform 0.6s ease}
+.reveal.in{opacity:1;transform:translateY(0)}
  
 /* ════════════════════════════════════
-   LOGIN SCREEN
+   AUTH PAGES (Sign up / Login)
 ════════════════════════════════════ */
-#loginScreen{display:none;min-height:100vh;align-items:center;justify-content:center;background:var(--navy)}
-.login-box{background:var(--navy2);border:1px solid var(--border);border-radius:16px;padding:48px 40px;width:100%;max-width:400px;text-align:center;animation:fadeUp 0.4s ease}
-.login-logo{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--white);margin-bottom:4px}
-.login-logo span{color:var(--gold)}
-.login-label{font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:36px;display:block}
-.lf{margin-bottom:14px;text-align:left}
-.lf label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
-.lf input{width:100%;padding:13px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:border-color 0.2s}
-.lf input:focus{border-color:var(--gold);background:rgba(201,168,76,0.04)}
-.login-btn{width:100%;padding:13px;margin-top:8px;background:var(--gold);color:var(--navy);border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s}
-.login-btn:hover{background:#b8933e}
-.login-error{color:#f87171;font-size:13px;margin-top:12px;display:none}
-.login-hint{font-size:11px;color:rgba(136,153,170,0.35);margin-top:20px}
+.auth-page{min-height:100vh;display:flex;flex-direction:column}
+.auth-nav{padding:20px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.05)}
+.auth-body{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.auth-box{background:var(--navy2);border:1px solid var(--border);border-radius:16px;padding:40px;width:100%;max-width:440px;animation:fadeUp 0.4s ease}
+.auth-logo{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--white);margin-bottom:4px}.auth-logo span{color:var(--gold)}
+.auth-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
+.auth-divider{text-align:center;position:relative;margin:20px 0;color:var(--muted);font-size:12px}
+.auth-divider::before,.auth-divider::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:rgba(255,255,255,0.07)}
+.auth-divider::before{left:0}.auth-divider::after{right:0}
+.auth-link{font-size:13px;color:var(--muted);text-align:center;margin-top:18px}
+.auth-link a{color:var(--gold);text-decoration:none}.auth-link a:hover{color:var(--gold2)}
+.check-row{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.check-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--gold);cursor:pointer;flex-shrink:0}
+.check-row label{font-size:13px;color:var(--muted);cursor:pointer}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:44px}
+.pw-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0;line-height:1}
+.pw-strength{height:3px;border-radius:2px;margin-top:6px;background:rgba(255,255,255,0.06);overflow:hidden}
+.pw-strength-bar{height:100%;width:0;border-radius:2px;transition:all 0.3s}
+.pw-hint{font-size:11px;margin-top:4px}
+.verify-box{text-align:center;padding:10px 0}
+.verify-icon{font-size:52px;margin-bottom:16px}
+.info-box{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:12px 16px;font-size:13px;color:#93c5fd;margin-bottom:16px;line-height:1.5}
+.warn-box{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--yellow);margin-bottom:16px;line-height:1.5}
  
 /* ════════════════════════════════════
-   DASHBOARD
+   APP (logged-in tool)
 ════════════════════════════════════ */
-#dashboard{display:none;min-height:100vh;background:var(--navy);animation:fadeIn 0.4s ease}
-.admin-nav{background:var(--navy2);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:50}
-.admin-logo{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--white)}
-.admin-logo span{color:var(--gold)}
-.admin-logo small{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-left:10px}
-.admin-user{font-size:13px;color:var(--muted)}.admin-user strong{color:var(--gold2)}
-.logout-btn{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--muted);padding:6px 14px;border-radius:6px;font-size:13px;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif}.logout-btn:hover{color:var(--white)}
-.admin-body{max-width:1200px;margin:0 auto;padding:32px 24px}
-.admin-greeting{font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--white);margin-bottom:4px}
-.admin-date{font-size:13px;color:var(--muted);margin-bottom:28px}
+.app-nav{background:var(--navy2);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:50}
+.app-logo{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--white)}.app-logo span{color:var(--gold)}
+.app-nav-right{display:flex;align-items:center;gap:14px}
+.plan-pill{font-size:11px;padding:4px 10px;border-radius:12px;letter-spacing:0.5px;text-transform:uppercase;font-weight:500}
+.plan-pill.free{background:var(--surface2);color:var(--muted)}
+.plan-pill.pro{background:rgba(201,168,76,0.15);color:var(--gold)}
+.plan-pill.team{background:rgba(59,130,246,0.15);color:#93c5fd}
+.user-menu-btn{display:flex;align-items:center;gap:8px;background:none;border:none;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;padding:6px 10px;border-radius:7px;transition:background 0.2s}.user-menu-btn:hover{background:var(--surface2)}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--gold3);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--gold);flex-shrink:0}
  
-/* Tabs */
-.admin-tabs{display:flex;gap:2px;margin-bottom:28px;background:rgba(255,255,255,0.03);border-radius:10px;padding:4px;width:fit-content}
-.tab{padding:9px 20px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);transition:all 0.2s;border:none;background:none;font-family:'DM Sans',sans-serif}.tab:hover:not(.active){color:var(--text)}
-.tab.active{background:var(--navy2);color:var(--white);box-shadow:0 1px 4px rgba(0,0,0,0.3)}
-.tab-panel{display:none}.tab-panel.active{display:block}
+.app-body{max-width:860px;margin:0 auto;padding:32px 20px}
+.app-header{margin-bottom:28px}
+.app-title{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--white);margin-bottom:4px}
+.app-sub{font-size:14px;color:var(--muted)}
  
-/* Stat cards */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
-.stat-card{background:var(--navy2);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:22px 24px;position:relative;overflow:hidden;transition:border-color 0.3s}.stat-card:hover{border-color:var(--border)}
+/* Notes counter banner */
+.notes-banner{background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:12px;flex-wrap:wrap}
+.notes-banner.warn{border-color:rgba(251,191,36,0.4);background:rgba(251,191,36,0.05)}
+.notes-banner.block{border-color:rgba(239,68,68,0.4);background:rgba(239,68,68,0.05)}
+.notes-left{font-size:13px;color:var(--muted)}
+.notes-left strong{color:var(--text)}
+ 
+/* Progress steps */
+.step-bar{display:flex;gap:0;margin-bottom:24px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.07)}
+.step-item{flex:1;padding:10px 6px;text-align:center;background:var(--navy2);font-size:12px;font-weight:500;color:var(--muted);border-right:1px solid rgba(255,255,255,0.07);cursor:pointer;transition:all 0.2s}
+.step-item:last-child{border-right:none}
+.step-item.active{background:var(--navy3);color:var(--white)}
+.step-item.done{background:rgba(34,197,94,0.08);color:var(--green)}
+.step-num{display:block;width:20px;height:20px;border-radius:50%;margin:0 auto 4px;font-size:11px;line-height:20px;background:rgba(255,255,255,0.07)}
+.step-item.active .step-num{background:var(--gold);color:var(--navy);font-weight:700}
+.step-item.done .step-num{background:var(--green);color:var(--navy)}
+ 
+.step-panel{display:none}.step-panel.active{display:block}
+ 
+/* Form card */
+.form-card{background:var(--navy2);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:24px;margin-bottom:20px}
+.form-card-title{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--white);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:10px}
+.form-card-badge{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;background:var(--navy);color:var(--gold);padding:3px 8px;border-radius:12px;letter-spacing:0.5px;text-transform:uppercase}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+ 
+/* AI output */
+.output-box{background:var(--navy);border-radius:12px;border:1px solid var(--border);padding:24px;margin-bottom:20px}
+.output-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(201,168,76,0.2)}
+.output-label{color:var(--gold);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:7px}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulse 1.5s infinite}
+.output-text{font-size:14px;color:#d4d4e8;line-height:1.8;white-space:pre-wrap}
+.copy-btn{background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);color:var(--gold2);padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}.copy-btn:hover{background:rgba(201,168,76,0.22)}
+.flags{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.06)}
+.flag{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;display:inline-flex;align-items:center;gap:5px}
+.flag-ok{background:var(--green-bg);color:var(--green);border:1px solid rgba(34,197,94,0.2)}
+.flag-warn{background:var(--yellow-bg);color:var(--yellow);border:1px solid rgba(251,191,36,0.2)}
+.loading-note{display:flex;align-items:center;gap:10px;color:var(--gold2);font-size:14px;padding:20px 0}
+.loading-spinner{width:18px;height:18px;border-radius:50%;border:2px solid rgba(201,168,76,0.3);border-top-color:var(--gold);animation:spin 0.8s linear infinite}
+ 
+/* Upgrade wall */
+.upgrade-wall{text-align:center;padding:48px 24px}
+.upgrade-icon{font-size:48px;margin-bottom:16px}
+.upgrade-title{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--white);margin-bottom:10px}
+.upgrade-text{font-size:14px;color:var(--muted);max-width:380px;margin:0 auto 28px;line-height:1.6}
+ 
+/* ════════════════════════════════════
+   PLANS / UPGRADE PAGE
+════════════════════════════════════ */
+.plans-body{max-width:860px;margin:0 auto;padding:40px 20px}
+ 
+/* ════════════════════════════════════
+   OWNER LOGIN + DASHBOARD
+════════════════════════════════════ */
+.owner-body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--navy)}
+.owner-box{background:var(--navy2);border:1px solid var(--border);border-radius:16px;padding:44px 40px;width:100%;max-width:400px;text-align:center;animation:fadeUp 0.4s ease}
+.owner-logo{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--white);margin-bottom:4px}.owner-logo span{color:var(--gold)}
+.owner-sub{font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:32px}
+ 
+/* Dashboard */
+.dash-nav{background:var(--navy2);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:50}
+.dash-body{max-width:1180px;margin:0 auto;padding:28px 20px}
+.dash-greeting{font-family:'Cormorant Garamond',serif;font-size:30px;color:var(--white);margin-bottom:4px}
+.dash-date{font-size:13px;color:var(--muted);margin-bottom:26px}
+.dash-tabs{display:flex;gap:2px;margin-bottom:26px;background:rgba(255,255,255,0.03);border-radius:10px;padding:4px;width:fit-content}
+.d-tab{padding:8px 18px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);border:none;background:none;font-family:'DM Sans',sans-serif;transition:all 0.2s}.d-tab:hover:not(.active){color:var(--text)}
+.d-tab.active{background:var(--navy2);color:var(--white);box-shadow:0 1px 4px rgba(0,0,0,0.3)}
+.d-panel{display:none}.d-panel.active{display:block}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--navy2);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:20px 22px;position:relative;overflow:hidden;transition:border-color 0.3s}.stat-card:hover{border-color:var(--border)}
 .stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);opacity:0.4}
-.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
-.stat-value{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:500;color:var(--white);line-height:1}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:9px}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:500;color:var(--white);line-height:1}
 .stat-sub{font-size:12px;color:var(--muted);margin-top:6px}
-.stat-badge{display:inline-flex;align-items:center;font-size:11px;padding:3px 8px;border-radius:12px;margin-top:8px}
-.stat-badge.up{background:var(--green-bg);color:var(--green-text)}
-.stat-badge.neutral{background:rgba(201,168,76,0.1);color:var(--gold2)}
- 
-/* Cards + tables */
-.admin-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;margin-bottom:24px}
-.admin-card{background:var(--navy2);border:1px solid rgba(255,255,255,0.07);border-radius:12px;overflow:hidden}
-.admin-card-header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between}
-.admin-card-title{font-size:14px;font-weight:500;color:var(--white)}
-.card-action{font-size:12px;color:var(--gold);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif}.card-action:hover{color:var(--gold2)}
+.stat-badge{display:inline-flex;align-items:center;font-size:11px;padding:3px 8px;border-radius:12px;margin-top:7px}
+.stat-badge.up{background:var(--green-bg);color:var(--green)}
+.stat-badge.neu{background:rgba(201,168,76,0.1);color:var(--gold2)}
+.d-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-bottom:20px}
+.d-card{background:var(--navy2);border:1px solid rgba(255,255,255,0.07);border-radius:12px;overflow:hidden}
+.d-card-hdr{padding:16px 22px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between}
+.d-card-title{font-size:14px;font-weight:500;color:var(--white)}
+.d-act{font-size:12px;color:var(--gold);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif}.d-act:hover{color:var(--gold2)}
 table{width:100%;border-collapse:collapse}
-th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;padding:12px 20px;text-align:left;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.05)}
-td{padding:13px 20px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(255,255,255,0.03)}
+th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.7px;padding:11px 18px;text-align:left;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.05)}
+td{padding:12px 18px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(255,255,255,0.03)}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:rgba(255,255,255,0.015)}
-.badge{display:inline-flex;align-items:center;font-size:11px;padding:4px 10px;border-radius:20px;font-weight:500}
-.badge-pro{background:rgba(201,168,76,0.15);color:var(--gold)}
-.badge-free{background:rgba(255,255,255,0.06);color:var(--muted)}
-.badge-team{background:rgba(59,130,246,0.15);color:#93c5fd}
-.badge-active{background:var(--green-bg);color:var(--green-text)}
-.badge-trial{background:rgba(251,191,36,0.12);color:#fcd34d}
-.badge-churned{background:rgba(239,68,68,0.12);color:#fca5a5}
- 
-/* Chart */
-.chart-area{padding:24px;height:180px;display:flex;align-items:flex-end;gap:8px;justify-content:space-around}
-.bar-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}
-.bar{width:100%;max-width:40px;border-radius:4px 4px 0 0;background:rgba(201,168,76,0.3);transition:all 0.4s ease;min-height:4px}.bar:hover{background:var(--gold)}
-.bar-label{font-size:11px;color:var(--muted)}.bar-val{font-size:11px;color:var(--gold2);font-weight:500}
- 
-/* Add subscriber */
-.add-sub-form{padding:18px 24px;background:rgba(201,168,76,0.03);border-top:1px solid rgba(255,255,255,0.05)}
-.add-sub-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px}
-.form-row{display:flex;gap:8px;flex-wrap:wrap}
-.form-row input,.form-row select{flex:1;min-width:120px;padding:9px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s}
+.chart-area{padding:20px;height:170px;display:flex;align-items:flex-end;gap:7px;justify-content:space-around}
+.bar-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
+.bar{width:100%;max-width:38px;border-radius:4px 4px 0 0;background:rgba(201,168,76,0.28);transition:all 0.4s;min-height:4px}.bar:hover{background:var(--gold)}
+.bar-lbl{font-size:11px;color:var(--muted)}.bar-v{font-size:11px;color:var(--gold2);font-weight:500}
+.add-sub-row{padding:16px 22px;background:rgba(201,168,76,0.03);border-top:1px solid rgba(255,255,255,0.05)}
+.add-sub-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:9px}
+.form-row{display:flex;gap:7px;flex-wrap:wrap}
+.form-row input,.form-row select{flex:1;min-width:110px;padding:8px 11px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s}
 .form-row input:focus{border-color:var(--gold)}
 .form-row select{background:var(--navy2)}
- 
-/* Settings */
-.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.settings-card{background:var(--navy2);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:24px}
-.settings-title{font-size:14px;font-weight:500;color:var(--white);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.06)}
-.sf{margin-bottom:14px}
-.sf label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.s-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.s-card{background:var(--navy2);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:22px}
+.s-title{font-size:14px;font-weight:500;color:var(--white);margin-bottom:14px;padding-bottom:11px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.sf{margin-bottom:12px}
+.sf label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px}
 .sf input{width:100%;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s}.sf input:focus{border-color:var(--gold)}
 .save-btn{background:rgba(201,168,76,0.15);border:1px solid var(--border);color:var(--gold);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:7px 16px;cursor:pointer;transition:all 0.2s;margin-top:6px}.save-btn:hover{background:rgba(201,168,76,0.25)}
  
-/* Toast */
-.toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--navy2);border:1px solid var(--gold);border-radius:10px;padding:14px 20px;font-size:14px;color:var(--gold2);display:none;animation:fadeUp 0.3s ease;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
-.toast.show{display:block}
- 
 @media(max-width:768px){
-  nav{padding:16px 20px}.nav-links{display:none}
-  .pain-grid,.features-grid,.pricing-grid,.stats-grid,.admin-grid,.settings-grid{grid-template-columns:1fr}
+  .lp-nav{padding:14px 16px}.lp-nav-links{display:none}.hero h1{font-size:38px}
+  .pain-grid,.feat-grid,.pricing-grid,.stats-grid,.d-grid,.s-grid,.grid-2,.grid-3{grid-template-columns:1fr}
   .steps-grid{grid-template-columns:1fr 1fr}
-  .hero-proof{flex-wrap:wrap;justify-content:center}
-  footer{flex-direction:column;text-align:center}
-  .admin-nav,.admin-body{padding-left:16px;padding-right:16px}
+  .hero-proof{flex-direction:column;align-items:center;gap:12px}
+  .lp-footer,.auth-nav{padding:14px 16px}
+  .app-nav,.dash-nav{padding:0 14px}
+  .app-body,.plans-body,.dash-body{padding:20px 12px}
+  .pricing-grid{grid-template-columns:1fr}
+  .auth-box,.owner-box{padding:28px 20px}
 }
 </style>
 </head>
 <body>
  
-<!-- ════════════════════════════════════
+<!-- ══════════════════════════════════
      LANDING PAGE
-════════════════════════════════════ -->
-<div id="landing">
-<nav>
-  <div class="nav-logo">Mortgage<span>Note</span> AI</div>
-  <div class="nav-links">
-    <a href="#how">How it works</a>
-    <a href="#features">Features</a>
-    <a href="#pricing">Pricing</a>
-    <a href="#faq">FAQ</a>
-  </div>
-  <button class="nav-cta" onclick="openSignup()">Start free trial</button>
-</nav>
- 
-<section class="hero">
-  <div class="hero-badge"><div class="badge-dot"></div> Built for UK mortgage advisers · FCA MCOB compliant</div>
-  <h1>Suitability notes written<br/><em>in 60 seconds.</em></h1>
-  <p class="hero-sub">Stop spending 2 hours after every client meeting writing compliance notes. <strong>MortgageNote AI</strong> generates complete, FCA-ready suitability reports instantly.</p>
-  <div class="hero-actions">
-    <button class="btn-hero btn-gold-hero" onclick="openSignup()">Start free — no card needed</button>
-    <a href="#how" class="btn-hero btn-ghost-hero">See how it works</a>
-  </div>
-  <div class="hero-proof">
-    <div class="proof-item"><strong>2 hrs</strong><span>saved per client meeting</span></div>
-    <div class="proof-divider"></div>
-    <div class="proof-item"><strong>100%</strong><span>FCA Consumer Duty aligned</span></div>
-    <div class="proof-divider"></div>
-    <div class="proof-item"><strong>25,000+</strong><span>UK advisers who need this</span></div>
-  </div>
-</section>
- 
-<div style="max-width:1100px;margin:0 auto">
-<section class="lp-section reveal" id="problem">
-  <div class="section-label">The problem</div>
-  <h2 class="section-title">Your evenings belong<br/>to your clients. <em>Not paperwork.</em></h2>
-  <p class="section-sub">Every FCA-regulated mortgage adviser faces the same grind.</p>
-  <div class="pain-grid">
-    <div class="pain-card"><div class="pain-icon">📋</div><div class="pain-title">Suitability reports</div><div class="pain-text">Every recommendation requires a detailed written justification covering needs, alternatives, affordability, and Consumer Duty compliance.</div><div class="pain-stat">45–90 min<span>per note written manually</span></div></div>
-    <div class="pain-card"><div class="pain-icon">⚖️</div><div class="pain-title">FCA audit risk</div><div class="pain-text">The FCA expects bulletproof, timestamped records. One gap in your documentation during a review can mean regulatory action.</div><div class="pain-stat">£100K+<span>average FCA fine for documentation failures</span></div></div>
-    <div class="pain-card"><div class="pain-icon">📅</div><div class="pain-title">Consumer Duty pressure</div><div class="pain-text">Since 2023, Consumer Duty rules require advisers to actively document client understanding, vulnerability checks, and suitable advice.</div><div class="pain-stat">2023<span>documentation demands doubled overnight</span></div></div>
-  </div>
-</section>
-</div>
- 
-<section class="how-section reveal" id="how">
-  <div class="how-inner">
-    <div class="section-label">How it works</div>
-    <h2 class="section-title">Four steps. One complete suitability note.</h2>
-    <div class="steps-grid">
-      <div class="how-step"><div class="how-num">01</div><div class="how-title">Enter client details</div><div class="how-text">Name, age, employment, income, credit profile. Structured form — no free typing required.</div><div class="how-time">⏱ ~2 minutes</div></div>
-      <div class="how-step"><div class="how-num">02</div><div class="how-title">Add mortgage details</div><div class="how-text">Purchase type, loan amount, lender, rate, term, repayment method.</div><div class="how-time">⏱ ~2 minutes</div></div>
-      <div class="how-step"><div class="how-num">03</div><div class="how-title">Record circumstances</div><div class="how-text">Needs, risk attitude, alternatives considered, protection, vulnerability. All Consumer Duty boxes ticked.</div><div class="how-time">⏱ ~3 minutes</div></div>
-      <div class="how-step"><div class="how-num">04</div><div class="how-title">Get your note</div><div class="how-text">AI generates a full FCA-ready suitability note with compliance checklist. Copy to your CRM instantly.</div><div class="how-time">⏱ ~30 seconds</div></div>
+══════════════════════════════════ -->
+<div id="page-landing" class="page">
+  <nav class="lp-nav">
+    <div class="nav-logo">Mortgage<span>Note</span> AI</div>
+    <div class="lp-nav-links">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
     </div>
-  </div>
-</section>
+    <div class="lp-nav-right">
+      <button class="btn btn-ghost btn-sm" onclick="showPage('page-login')">Log in</button>
+      <button class="btn btn-gold btn-sm" onclick="showPage('page-signup')">Start free trial</button>
+    </div>
+  </nav>
  
-<div style="max-width:1100px;margin:0 auto">
-<section class="lp-section reveal" id="features">
-  <div class="section-label">Features</div>
-  <h2 class="section-title">Everything the FCA needs to see.</h2>
-  <div class="features-grid">
-    <div class="feature-card"><div class="feature-icon">📜</div><div><div class="feature-title">Full MCOB-compliant suitability notes</div><div class="feature-text">Notes follow MCOB 4 and 11 requirements. Every required section included — background, rationale, alternatives, affordability, protection, Consumer Duty.</div></div></div>
-    <div class="feature-card"><div class="feature-icon">✅</div><div><div class="feature-title">Auto compliance checklist</div><div class="feature-text">Every note includes a pass/review/N-A checklist so you know instantly if anything needs attention before you file it.</div></div></div>
-    <div class="feature-card"><div class="feature-icon">🛡️</div><div><div class="feature-title">Consumer Duty built in</div><div class="feature-text">Vulnerability assessment, client understanding confirmation, and ongoing service obligations all documented automatically.</div></div></div>
-    <div class="feature-card"><div class="feature-icon">⚡</div><div><div class="feature-title">Copy to any CRM in one click</div><div class="feature-text">One-click copy to clipboard. Paste straight into Intelliflo, Salesforce, or any system. No integrations needed.</div></div></div>
-    <div class="feature-card"><div class="feature-icon">🔒</div><div><div class="feature-title">No client data stored</div><div class="feature-text">Client data is never stored on our servers. Notes are generated in real time. GDPR compliant by design.</div></div></div>
-    <div class="feature-card"><div class="feature-icon">📱</div><div><div class="feature-title">Works on any device</div><div class="feature-text">Use it at your desk, on a tablet during a meeting, or on your phone between appointments. No app to download.</div></div></div>
-  </div>
-</section>
-</div>
+  <section class="hero">
+    <div class="hero-badge"><div class="badge-dot"></div> Built for UK mortgage advisers · FCA MCOB compliant</div>
+    <h1>Suitability notes written<br/><em>in 60 seconds.</em></h1>
+    <p class="hero-sub">Stop spending 2 hours after every client meeting writing compliance notes. <strong>MortgageNote AI</strong> generates complete, FCA-ready suitability reports instantly.</p>
+    <div class="hero-btns">
+      <button class="btn btn-gold" style="padding:14px 32px;font-size:15px" onclick="showPage('page-signup')">Start free — no card needed</button>
+      <a href="#how" class="btn btn-outline" style="padding:14px 32px;font-size:15px">See how it works</a>
+    </div>
+    <div class="hero-proof">
+      <div class="proof-item"><strong>2 hrs</strong><span>saved per client meeting</span></div>
+      <div class="proof-div"></div>
+      <div class="proof-item"><strong>100%</strong><span>FCA Consumer Duty aligned</span></div>
+      <div class="proof-div"></div>
+      <div class="proof-item"><strong>25,000+</strong><span>UK advisers who need this</span></div>
+    </div>
+  </section>
  
-<section class="social-section reveal">
-  <div class="social-inner">
-    <div class="section-label" style="text-align:center">What advisers say</div>
-    <p class="quote">"I used to spend Sunday evenings writing up the week's notes. Now I do it in the car park after each meeting. It's genuinely changed how I run my practice."</p>
-    <div class="quote-author"><strong>James T.</strong> · Independent mortgage adviser, Manchester</div>
+  <div style="max-width:1100px;margin:0 auto">
+  <section class="lp-sec reveal">
+    <div class="sec-label">The problem</div>
+    <h2 class="sec-h">Your evenings belong<br/>to your clients. <em style="font-style:italic;color:var(--gold)">Not paperwork.</em></h2>
+    <p class="sec-sub">Every FCA-regulated mortgage adviser faces the same grind.</p>
+    <div class="pain-grid">
+      <div class="pain-card"><div class="pain-icon">📋</div><div class="pain-title">Suitability reports</div><div class="pain-text">Every recommendation requires a detailed written justification covering needs, alternatives, affordability, and Consumer Duty compliance.</div><div class="pain-stat">45–90 min<span>per note written manually</span></div></div>
+      <div class="pain-card"><div class="pain-icon">⚖️</div><div class="pain-title">FCA audit risk</div><div class="pain-text">The FCA expects bulletproof, timestamped records. One gap in your documentation during a review can mean regulatory action.</div><div class="pain-stat">£100K+<span>average FCA fine for documentation failures</span></div></div>
+      <div class="pain-card"><div class="pain-icon">📅</div><div class="pain-title">Consumer Duty pressure</div><div class="pain-text">Since 2023, Consumer Duty rules require advisers to document client understanding, vulnerability, and suitability every time.</div><div class="pain-stat">2023<span>documentation demands doubled overnight</span></div></div>
+    </div>
+  </section>
   </div>
-</section>
  
-<section class="pricing-section reveal" id="pricing">
-  <div class="pricing-inner">
-    <div class="section-label">Pricing</div>
-    <h2 class="section-title">Simple, honest pricing.</h2>
-    <p style="color:var(--muted);font-size:16px">One note saves you an hour. The maths makes itself.</p>
-    <div class="pricing-grid">
-      <div class="price-card">
-        <div class="price-tier">Starter</div>
-        <div class="price-amount"><sup>£</sup>0</div>
-        <div class="price-per">Free forever · 5 notes/month</div>
-        <ul class="price-features">
-          <li>5 suitability notes per month</li><li>Full MCOB-compliant output</li><li>Consumer Duty checklist</li>
-          <li class="na">Unlimited notes</li><li class="na">Priority support</li><li class="na">Team access</li>
-        </ul>
-        <button class="price-btn price-btn-outline" onclick="openSignup()">Start free</button>
-      </div>
-      <div class="price-card featured">
-        <div class="featured-badge">Most popular</div>
-        <div class="price-tier">Professional</div>
-        <div class="price-amount"><sup>£</sup>39</div>
-        <div class="price-per">per month · cancel anytime</div>
-        <ul class="price-features">
-          <li>Unlimited suitability notes</li><li>Full MCOB-compliant output</li><li>Consumer Duty checklist</li>
-          <li>Priority email support</li><li>New features first</li><li class="na">Team access</li>
-        </ul>
-        <button class="price-btn price-btn-gold" id="proBuyBtn" onclick="buyPro()">Buy Here</button>
-      </div>
-      <div class="price-card">
-        <div class="price-tier">Team</div>
-        <div class="price-amount"><sup>£</sup>89</div>
-        <div class="price-per">per month · up to 5 advisers</div>
-        <ul class="price-features">
-          <li>Unlimited suitability notes</li><li>Full MCOB-compliant output</li><li>Consumer Duty checklist</li>
-          <li>Priority email support</li><li>New features first</li><li>Up to 5 adviser seats</li>
-        </ul>
-        <button class="price-btn price-btn-outline" id="teamBuyBtn" onclick="buyTeam()">Get started</button>
+  <section class="how-band reveal" id="how">
+    <div class="how-inner">
+      <div class="sec-label">How it works</div>
+      <h2 class="sec-h">Four steps. One complete suitability note.</h2>
+      <div class="steps-grid">
+        <div class="how-step"><div class="how-num">01</div><div class="how-title">Enter client details</div><div class="how-text">Name, age, employment, income, credit profile. Structured form — no free typing required.</div><div class="how-time">⏱ ~2 minutes</div></div>
+        <div class="how-step"><div class="how-num">02</div><div class="how-title">Add mortgage details</div><div class="how-text">Purchase type, loan, lender, rate, term, repayment method.</div><div class="how-time">⏱ ~2 minutes</div></div>
+        <div class="how-step"><div class="how-num">03</div><div class="how-title">Record circumstances</div><div class="how-text">Needs, risk attitude, alternatives considered, protection, vulnerability. All Consumer Duty boxes ticked.</div><div class="how-time">⏱ ~3 minutes</div></div>
+        <div class="how-step"><div class="how-num">04</div><div class="how-title">Get your note</div><div class="how-text">AI generates a full FCA-ready suitability note with compliance checklist. Copy to your CRM instantly.</div><div class="how-time">⏱ ~30 seconds</div></div>
       </div>
     </div>
+  </section>
+ 
+  <div style="max-width:1100px;margin:0 auto">
+  <section class="lp-sec reveal" id="features">
+    <div class="sec-label">Features</div>
+    <h2 class="sec-h">Everything the FCA needs to see.</h2>
+    <div class="feat-grid">
+      <div class="feat-card"><div class="feat-icon">📜</div><div><div class="feat-title">MCOB-compliant suitability notes</div><div class="feat-text">Follows MCOB 4 and 11 requirements. Every required section included — background, rationale, alternatives, affordability, protection, Consumer Duty.</div></div></div>
+      <div class="feat-card"><div class="feat-icon">✅</div><div><div class="feat-title">Auto compliance checklist</div><div class="feat-text">Every note includes a pass/review/N-A checklist so you know instantly if anything needs attention before you file.</div></div></div>
+      <div class="feat-card"><div class="feat-icon">🛡️</div><div><div class="feat-title">Consumer Duty built in</div><div class="feat-text">Vulnerability assessment, client understanding confirmation, and ongoing service obligations documented automatically in every note.</div></div></div>
+      <div class="feat-card"><div class="feat-icon">⚡</div><div><div class="feat-title">Copy to any CRM in one click</div><div class="feat-text">One-click copy to clipboard. Paste straight into Intelliflo, Salesforce, or any CRM. No integrations needed.</div></div></div>
+      <div class="feat-card"><div class="feat-icon">🔒</div><div><div class="feat-title">No client data stored</div><div class="feat-text">Client data is never stored on our servers. Notes are generated in real time. GDPR compliant by design.</div></div></div>
+      <div class="feat-card"><div class="feat-icon">📱</div><div><div class="feat-title">Works on any device</div><div class="feat-text">Use it at your desk, on a tablet during a meeting, or on your phone between appointments. No app to download.</div></div></div>
+    </div>
+  </section>
   </div>
-</section>
  
-<section class="faq-section reveal" id="faq">
-  <div class="faq-inner">
-    <div style="text-align:center;margin-bottom:40px"><div class="section-label">FAQ</div><h2 class="section-title">Common questions</h2></div>
-    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Is this actually FCA compliant? <span class="faq-icon">+</span></div><div class="faq-a">MortgageNote AI generates notes that meet MCOB 4 and 11 requirements and address all Consumer Duty obligations. However, as the regulated adviser, you remain responsible for reviewing and signing off every note before use.</div></div>
-    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Where is client data stored? <span class="faq-icon">+</span></div><div class="faq-a">Nowhere. Client data entered is processed in real time and never stored on our servers. GDPR compliant by design.</div></div>
-    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Can I edit the notes before filing? <span class="faq-icon">+</span></div><div class="faq-a">Yes — and you should. The AI generates a strong first draft. Copy the output, paste into your CRM or Word document, and amend as needed.</div></div>
-    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">What's included in the free plan? <span class="faq-icon">+</span></div><div class="faq-a">5 complete suitability notes per month — enough to test the tool properly with real clients before committing. No credit card required.</div></div>
-    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">How do I cancel? <span class="faq-icon">+</span></div><div class="faq-a">Cancel any time from your account settings. No notice period, no cancellation fee.</div></div>
-  </div>
-</section>
+  <section class="quote-band reveal">
+    <div class="quote-inner">
+      <div class="sec-label" style="text-align:center">What advisers say</div>
+      <p class="quote">"I used to spend Sunday evenings writing up the week's notes. Now I do it in the car park after each meeting."</p>
+      <div class="quote-by"><strong>James T.</strong> · Independent mortgage adviser, Manchester</div>
+    </div>
+  </section>
  
-<section class="cta-section reveal">
-  <h2 class="cta-title">Your next client meeting<br/>just got 2 hours shorter.</h2>
-  <p style="color:var(--muted);font-size:17px;margin-bottom:40px;max-width:480px;margin-left:auto;margin-right:auto">Join UK mortgage advisers saving time, reducing risk, and going home earlier.</p>
-  <button class="btn-hero btn-gold-hero" onclick="openSignup()">Start your free trial today</button>
-</section>
+  <section class="pricing-band reveal" id="pricing">
+    <div class="pricing-inner">
+      <div class="sec-label">Pricing</div>
+      <h2 class="sec-h">Simple, honest pricing.</h2>
+      <p style="color:var(--muted);font-size:15px">One note saves you an hour. The maths makes itself.</p>
+      <div class="pricing-grid">
+        <div class="pc">
+          <div class="pc-tier">Starter</div>
+          <div class="pc-price"><sup>£</sup>0</div>
+          <div class="pc-per">Free forever · 5 notes/month</div>
+          <ul><li>5 suitability notes per month</li><li>Full MCOB-compliant output</li><li>Consumer Duty checklist</li><li class="na">Unlimited notes</li><li class="na">Priority support</li><li class="na">Team access</li></ul>
+          <button class="btn btn-outline btn-full" onclick="showPage('page-signup')">Create free account</button>
+        </div>
+        <div class="pc hot">
+          <div class="hot-badge">Most popular</div>
+          <div class="pc-tier">Professional</div>
+          <div class="pc-price"><sup>£</sup>39</div>
+          <div class="pc-per">per month · cancel anytime</div>
+          <ul><li>Unlimited suitability notes</li><li>Full MCOB-compliant output</li><li>Consumer Duty checklist</li><li>Priority email support</li><li>New features first</li><li class="na">Team access</li></ul>
+          <button class="btn btn-gold btn-full" onclick="showPage('page-signup')">Start 14-day free trial</button>
+        </div>
+        <div class="pc">
+          <div class="pc-tier">Team</div>
+          <div class="pc-price"><sup>£</sup>89</div>
+          <div class="pc-per">per month · up to 5 advisers</div>
+          <ul><li>Unlimited suitability notes</li><li>Full MCOB-compliant output</li><li>Consumer Duty checklist</li><li>Priority email support</li><li>New features first</li><li>Up to 5 adviser seats</li></ul>
+          <button class="btn btn-outline btn-full" onclick="showPage('page-signup')">Get started</button>
+        </div>
+      </div>
+    </div>
+  </section>
  
-<footer>
-  <div>© 2026 MortgageNote AI. For use by FCA-regulated mortgage advisers.</div>
-  <div class="footer-links">
-    <a href="#">Privacy</a>
-    <a href="#">Terms</a>
-    <!-- Hidden owner link — invisible but clickable -->
-    <a href="?admin" style="opacity:0;font-size:8px;user-select:none">·</a>
-  </div>
-</footer>
-</div><!-- end #landing -->
+  <section class="faq-sec reveal">
+    <div class="faq-inner">
+      <div style="text-align:center;margin-bottom:36px"><div class="sec-label">FAQ</div><h2 class="sec-h">Common questions</h2></div>
+      <div class="faq-item" onclick="faq(this)"><div class="faq-q">Is this actually FCA compliant? <span class="faq-icon">+</span></div><div class="faq-a">MortgageNote AI generates notes that meet MCOB 4 and 11 requirements and address all Consumer Duty obligations. As the regulated adviser, you remain responsible for reviewing and signing off every note before use.</div></div>
+      <div class="faq-item" onclick="faq(this)"><div class="faq-q">Where is client data stored? <span class="faq-icon">+</span></div><div class="faq-a">Nowhere. Client data entered is processed in real time and never stored on our servers. GDPR compliant by design.</div></div>
+      <div class="faq-item" onclick="faq(this)"><div class="faq-q">Can I edit the notes before filing? <span class="faq-icon">+</span></div><div class="faq-a">Yes — and you should. Copy the output, paste into your CRM or Word document, and amend as needed.</div></div>
+      <div class="faq-item" onclick="faq(this)"><div class="faq-q">What's in the free plan? <span class="faq-icon">+</span></div><div class="faq-a">5 complete suitability notes per month — enough to test the tool properly with real clients. No credit card required.</div></div>
+      <div class="faq-item" onclick="faq(this)"><div class="faq-q">How do I cancel? <span class="faq-icon">+</span></div><div class="faq-a">Cancel any time from your account settings. No notice period, no cancellation fee.</div></div>
+    </div>
+  </section>
  
-<!-- Signup modal -->
-<div class="modal-overlay" id="signupModal" onclick="if(event.target===this)closeSignup()">
-  <div class="modal" id="signupModalInner">
-    <button class="modal-close" onclick="closeSignup()">×</button>
-    <div class="modal-title">Start your free trial</div>
-    <div class="modal-sub">14 days free on Professional. No card required to start.</div>
-    <div class="mf"><label>Full name</label><input type="text" id="suName" placeholder="James Mitchell"/></div>
-    <div class="mf"><label>Work email</label><input type="email" id="suEmail" placeholder="james@yourfirm.co.uk"/></div>
-    <div class="mf"><label>FCA firm name</label><input type="text" id="suFirm" placeholder="Your Firm Ltd"/></div>
-    <button class="price-btn price-btn-gold" style="margin-top:8px" onclick="handleSignup()">Create free account →</button>
-    <div class="stripe-info">🔒 Payments secured by Stripe. Cancel anytime. No card needed for free trial.</div>
+  <section class="cta-band reveal">
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(34px,5vw,62px);font-weight:500;color:var(--white);margin-bottom:18px">Your next client meeting<br/>just got 2 hours shorter.</h2>
+    <p style="color:var(--muted);font-size:16px;margin-bottom:36px;max-width:420px;margin-left:auto;margin-right:auto">Join UK mortgage advisers saving time, reducing risk, and going home earlier.</p>
+    <button class="btn btn-gold" style="padding:14px 36px;font-size:15px" onclick="showPage('page-signup')">Start your free trial today</button>
+  </section>
+ 
+  <footer class="lp-footer">
+    <div>© 2026 MortgageNote AI. For use by FCA-regulated mortgage advisers.</div>
+    <div class="lp-footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="?admin" style="opacity:0;font-size:6px">·</a>
+    </div>
+  </footer>
+</div>
+ 
+<!-- ══════════════════════════════════
+     SIGN UP PAGE
+══════════════════════════════════ -->
+<div id="page-signup" class="page">
+  <div class="auth-page">
+    <nav class="auth-nav">
+      <div class="nav-logo" style="cursor:pointer" onclick="showPage('page-landing')">Mortgage<span>Note</span> AI</div>
+      <div style="font-size:13px;color:var(--muted)">Already have an account? <a href="#" onclick="showPage('page-login');return false" style="color:var(--gold)">Log in</a></div>
+    </nav>
+    <div class="auth-body">
+      <div class="auth-box" id="signupBox">
+        <div class="auth-logo">Mortgage<span>Note</span> AI</div>
+        <div class="auth-sub">Create your free account — no card required</div>
+        <div class="field">
+          <label>Full name</label>
+          <input type="text" id="su_name" placeholder="James Mitchell" oninput="clearErr('su_name')"/>
+          <div class="err">Please enter your full name</div>
+        </div>
+        <div class="field">
+          <label>Work email</label>
+          <input type="email" id="su_email" placeholder="james@yourfirm.co.uk" oninput="clearErr('su_email')"/>
+          <div class="err" id="su_email_err">Please enter a valid email</div>
+        </div>
+        <div class="field">
+          <label>FCA firm name</label>
+          <input type="text" id="su_firm" placeholder="Your Firm Ltd"/>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <div class="pw-wrap">
+            <input type="password" id="su_pass" placeholder="Minimum 8 characters" oninput="pwStrength(this)" onchange="clearErr('su_pass')"/>
+            <button class="pw-toggle" onclick="togglePw('su_pass',this)" type="button">👁</button>
+          </div>
+          <div class="pw-strength"><div class="pw-strength-bar" id="su_pwbar"></div></div>
+          <div class="pw-hint" id="su_pwhint" style="color:var(--muted)"></div>
+          <div class="err">Password must be at least 8 characters</div>
+        </div>
+        <div class="field">
+          <label>Confirm password</label>
+          <div class="pw-wrap">
+            <input type="password" id="su_pass2" placeholder="Re-enter your password" oninput="clearErr('su_pass2')"/>
+            <button class="pw-toggle" onclick="togglePw('su_pass2',this)" type="button">👁</button>
+          </div>
+          <div class="err">Passwords do not match</div>
+        </div>
+        <div class="check-row">
+          <input type="checkbox" id="su_terms"/>
+          <label for="su_terms">I agree to the <a href="#" style="color:var(--gold)">Terms of Service</a> and <a href="#" style="color:var(--gold)">Privacy Policy</a></label>
+        </div>
+        <button class="btn btn-gold btn-full" id="su_btn" onclick="doSignup()">Create account</button>
+        <div class="auth-link">Already have an account? <a href="#" onclick="showPage('page-login');return false">Log in</a></div>
+      </div>
+ 
+      <!-- Verify email state -->
+      <div class="auth-box" id="verifyBox" style="display:none">
+        <div class="verify-box">
+          <div class="verify-icon">✉️</div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--white);margin-bottom:10px">Check your email</h3>
+          <p style="font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:24px">We've sent a verification link to <strong id="verifyEmail" style="color:var(--gold2)"></strong>.<br/>Click the link in the email to activate your account.</p>
+          <div class="warn-box">In this demo, click the button below to simulate email verification.</div>
+          <button class="btn btn-gold btn-full" onclick="verifyEmail()">✓ Simulate email verification</button>
+          <div style="margin-top:16px;font-size:13px;color:var(--muted)">Didn't receive it? <a href="#" style="color:var(--gold)" onclick="showToast('Resent! Check your inbox.');return false">Resend email</a></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
  
-<!-- ════════════════════════════════════
+<!-- ══════════════════════════════════
+     LOGIN PAGE
+══════════════════════════════════ -->
+<div id="page-login" class="page">
+  <div class="auth-page">
+    <nav class="auth-nav">
+      <div class="nav-logo" style="cursor:pointer" onclick="showPage('page-landing')">Mortgage<span>Note</span> AI</div>
+      <div style="font-size:13px;color:var(--muted)">No account? <a href="#" onclick="showPage('page-signup');return false" style="color:var(--gold)">Sign up free</a></div>
+    </nav>
+    <div class="auth-body">
+      <div class="auth-box">
+        <div class="auth-logo">Mortgage<span>Note</span> AI</div>
+        <div class="auth-sub">Sign in to your account</div>
+        <div class="field">
+          <label>Email address</label>
+          <input type="email" id="li_email" placeholder="james@yourfirm.co.uk" onkeydown="if(event.key==='Enter')doLogin()"/>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <div class="pw-wrap">
+            <input type="password" id="li_pass" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()"/>
+            <button class="pw-toggle" onclick="togglePw('li_pass',this)" type="button">👁</button>
+          </div>
+          <div class="err" id="li_err">Incorrect email or password</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+          <div class="check-row" style="margin:0">
+            <input type="checkbox" id="li_remember"/>
+            <label for="li_remember">Remember me</label>
+          </div>
+          <a href="#" style="font-size:13px;color:var(--gold)" onclick="showForgot();return false">Forgot password?</a>
+        </div>
+        <button class="btn btn-gold btn-full" id="li_btn" onclick="doLogin()">Sign in</button>
+        <div class="auth-link">No account yet? <a href="#" onclick="showPage('page-signup');return false">Start free trial</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════
+     APP PAGE
+══════════════════════════════════ -->
+<div id="page-app" class="page">
+  <nav class="app-nav">
+    <div class="app-logo">Mortgage<span>Note</span> AI</div>
+    <div class="app-nav-right">
+      <span class="plan-pill free" id="planPill">Free</span>
+      <button class="user-menu-btn" onclick="showUserMenu()">
+        <div class="avatar" id="userAvatar">J</div>
+        <span id="userName">User</span>
+        <span style="color:var(--muted);font-size:10px">▾</span>
+      </button>
+    </div>
+  </nav>
+  <div class="app-body">
+    <div class="app-header">
+      <div class="app-title">Generate suitability note</div>
+      <div class="app-sub">Complete all sections — the AI will generate a full FCA-compliant note</div>
+    </div>
+ 
+    <!-- Notes usage banner -->
+    <div class="notes-banner" id="notesBanner">
+      <span class="notes-left" id="notesLeft">Loading...</span>
+      <button class="btn btn-gold btn-sm" id="upgradeBtn" onclick="showPage('page-plans')" style="display:none">Upgrade to Pro →</button>
+    </div>
+ 
+    <!-- Step bar -->
+    <div class="step-bar">
+      <div class="step-item active" id="sb1" onclick="goStep(1)"><span class="step-num">1</span>Client</div>
+      <div class="step-item" id="sb2" onclick="goStep(2)"><span class="step-num">2</span>Mortgage</div>
+      <div class="step-item" id="sb3" onclick="goStep(3)"><span class="step-num">3</span>Circumstances</div>
+      <div class="step-item" id="sb4" onclick="goStep(4)"><span class="step-num">4</span>Review</div>
+      <div class="step-item" id="sb5" onclick="goStep(5)"><span class="step-num">5</span>Note</div>
+    </div>
+ 
+    <!-- Step 1 -->
+    <div class="step-panel active" id="sp1">
+      <div class="form-card">
+        <div class="form-card-title">Client details <span class="form-card-badge">Fact Find</span></div>
+        <div class="grid-2">
+          <div class="field"><label>Full name(s)</label><input type="text" id="f_name" placeholder="James & Sarah Mitchell"/></div>
+          <div class="field"><label>Date of meeting</label><input type="date" id="f_date"/></div>
+          <div class="field"><label>Age(s)</label><input type="text" id="f_ages" placeholder="34 and 32"/></div>
+          <div class="field"><label>Employment status</label>
+            <select id="f_emp"><option value="">Select...</option><option>Employed (PAYE)</option><option>Self-employed (sole trader)</option><option>Self-employed (Ltd company director)</option><option>Contractor</option><option>Retired</option><option>Mixed employment</option></select>
+          </div>
+          <div class="field"><label>Combined gross income (£)</label><input type="text" id="f_income" placeholder="72,000"/></div>
+          <div class="field"><label>Credit profile</label>
+            <select id="f_credit"><option value="">Select...</option><option>Clean credit</option><option>1 missed payment (12+ months ago)</option><option>Recent missed payments</option><option>Default (satisfied)</option><option>Default (unsatisfied)</option><option>CCJ</option><option>Bankruptcy/IVA</option></select>
+          </div>
+        </div>
+        <div class="field"><label>Dependants & other circumstances</label><input type="text" id="f_dep" placeholder="2 children aged 4 and 7, no other financial dependants"/></div>
+      </div>
+      <div class="form-actions"><button class="btn btn-gold" onclick="goStep(2)">Next →</button></div>
+    </div>
+ 
+    <!-- Step 2 -->
+    <div class="step-panel" id="sp2">
+      <div class="form-card">
+        <div class="form-card-title">Mortgage details <span class="form-card-badge">Product</span></div>
+        <div class="grid-2">
+          <div class="field"><label>Purchase type</label>
+            <select id="f_type"><option value="">Select...</option><option>First-time buyer purchase</option><option>Home mover purchase</option><option>Remortgage (better rate)</option><option>Remortgage (capital raise)</option><option>Buy-to-let purchase</option><option>Buy-to-let remortgage</option><option>Shared ownership</option><option>Right to buy</option></select>
+          </div>
+          <div class="field"><label>Property value (£)</label><input type="text" id="f_pval" placeholder="350,000"/></div>
+          <div class="field"><label>Mortgage amount (£)</label><input type="text" id="f_mamt" placeholder="280,000"/></div>
+          <div class="field"><label>Deposit / equity (£)</label><input type="text" id="f_dep2" placeholder="70,000"/></div>
+          <div class="field"><label>Mortgage term (years)</label><input type="text" id="f_term" placeholder="25"/></div>
+          <div class="field"><label>Repayment method</label>
+            <select id="f_rep"><option value="">Select...</option><option>Capital & interest (repayment)</option><option>Interest only</option><option>Part & part</option></select>
+          </div>
+          <div class="field"><label>Rate type recommended</label>
+            <select id="f_rate"><option value="">Select...</option><option>2-year fixed</option><option>3-year fixed</option><option>5-year fixed</option><option>10-year fixed</option><option>2-year tracker</option><option>Lifetime tracker</option></select>
+          </div>
+          <div class="field"><label>Lender recommended</label><input type="text" id="f_lender" placeholder="Halifax, Nationwide, NatWest…"/></div>
+          <div class="field"><label>Initial rate (%)</label><input type="text" id="f_irate" placeholder="4.19"/></div>
+          <div class="field"><label>Monthly payment (£)</label><input type="text" id="f_mpay" placeholder="1,452"/></div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="goStep(1)">← Back</button>
+        <button class="btn btn-gold" onclick="goStep(3)">Next →</button>
+      </div>
+    </div>
+ 
+    <!-- Step 3 -->
+    <div class="step-panel" id="sp3">
+      <div class="form-card">
+        <div class="form-card-title">Client circumstances <span class="form-card-badge">Suitability</span></div>
+        <div class="info-box">This section directly informs your FCA suitability report. The more detail you add, the stronger the note.</div>
+        <div class="field"><label>Primary objective</label><input type="text" id="f_obj" placeholder="Purchase first home, minimise monthly outgoings while maintaining overpayment flexibility"/></div>
+        <div class="field"><label>Financial commitments & outgoings</label><input type="text" id="f_out" placeholder="Car finance £320/mo, student loan £180/mo, no credit card debt"/></div>
+        <div class="field"><label>Attitude to interest rate risk</label>
+          <select id="f_risk"><option value="">Select...</option><option>Low — wants certainty of fixed payments</option><option>Medium — comfortable with some variability</option><option>High — accepts risk for potential savings</option></select>
+        </div>
+        <div class="field"><label>Future plans / life events discussed</label><input type="text" id="f_fut" placeholder="Plans to start family in 2 years, no plans to move within 5 years"/></div>
+        <div class="field"><label>Alternatives considered and why rejected</label><textarea id="f_alt" placeholder="Tracker rate considered but client rejected due to uncertainty in current rate environment. 2-year fix considered but 5-year provides better value given client's long-term stability..."></textarea></div>
+        <div class="field"><label>Protection needs</label>
+          <select id="f_prot"><option value="">Select...</option><option>Life insurance discussed and arranged</option><option>Life insurance discussed, client to review existing policy</option><option>Life insurance discussed, client declined</option><option>Critical illness discussed and arranged</option><option>Full protection review completed separately</option><option>Not applicable</option></select>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">Consumer Duty assessment</div>
+        <div class="grid-2">
+          <div class="field"><label>Vulnerability indicators</label>
+            <select id="f_vul"><option value="">Select...</option><option>No vulnerability identified</option><option>Financial stress identified — additional support given</option><option>Health-related vulnerability</option><option>Life event (bereavement, divorce, etc.)</option><option>Literacy / language support provided</option></select>
+          </div>
+          <div class="field"><label>Client understanding confirmed</label>
+            <select id="f_und"><option value="">Select...</option><option>Client confirmed full understanding of product</option><option>Additional explanation required — provided and confirmed</option><option>Documentation provided for review before proceeding</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="goStep(2)">← Back</button>
+        <button class="btn btn-gold" onclick="goStep(4)">Next →</button>
+      </div>
+    </div>
+ 
+    <!-- Step 4: Review -->
+    <div class="step-panel" id="sp4">
+      <div class="form-card">
+        <div class="form-card-title">Final adviser notes <span class="form-card-badge">Optional</span></div>
+        <div class="field"><label>Any additional context for the AI</label><textarea id="f_extra" placeholder="e.g. Client was anxious about rate risk — spent additional time explaining ERC structure. Client has been overpaying by £200/mo and wishes to continue. Employer confirmed redundancy risk is low."></textarea></div>
+      </div>
+      <div class="form-card" style="background:rgba(201,168,76,0.04);border-color:rgba(201,168,76,0.2)">
+        <div class="form-card-title">Ready to generate</div>
+        <p style="font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:0">The AI will generate a full FCA-compliant suitability note covering all MCOB sections and Consumer Duty requirements. The note is ready to copy into your CRM.</p>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="goStep(3)">← Back</button>
+        <button class="btn btn-gold" id="generateBtn" onclick="generateNote()">✦ Generate suitability note</button>
+      </div>
+    </div>
+ 
+    <!-- Step 5: Output -->
+    <div class="step-panel" id="sp5">
+      <div id="outputArea"></div>
+      <div class="form-actions" id="outputActions" style="display:none">
+        <button class="btn btn-ghost" onclick="goStep(4)">← Edit inputs</button>
+        <button class="btn btn-gold" onclick="newNote()">+ New client note</button>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════
+     PLANS / UPGRADE PAGE
+══════════════════════════════════ -->
+<div id="page-plans" class="page">
+  <nav class="app-nav">
+    <div class="app-logo">Mortgage<span>Note</span> AI</div>
+    <div class="app-nav-right">
+      <button class="btn btn-ghost btn-sm" onclick="showPage('page-app')">← Back to app</button>
+    </div>
+  </nav>
+  <div class="plans-body">
+    <div style="text-align:center;margin-bottom:44px">
+      <div class="sec-label">Upgrade your plan</div>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(30px,4vw,48px);color:var(--white);margin-bottom:12px">Unlimited notes. Zero admin.</h2>
+      <p style="color:var(--muted);font-size:15px">You've used your free notes for this month. Upgrade to keep going.</p>
+    </div>
+    <div class="pricing-grid" style="max-width:860px;margin:0 auto">
+      <div class="pc">
+        <div class="pc-tier">Starter (current)</div>
+        <div class="pc-price"><sup>£</sup>0</div>
+        <div class="pc-per">5 notes per month</div>
+        <ul><li>5 suitability notes/month</li><li>Full MCOB output</li><li>Consumer Duty checklist</li><li class="na">Unlimited notes</li></ul>
+        <button class="btn btn-ghost btn-full" disabled>Current plan</button>
+      </div>
+      <div class="pc hot">
+        <div class="hot-badge">Most popular</div>
+        <div class="pc-tier">Professional</div>
+        <div class="pc-price"><sup>£</sup>39</div>
+        <div class="pc-per">per month · cancel anytime</div>
+        <ul><li>Unlimited suitability notes</li><li>Full MCOB output</li><li>Consumer Duty checklist</li><li>Priority support</li><li>New features first</li></ul>
+        <button class="btn btn-gold btn-full" onclick="upgradePro()">Upgrade to Pro →</button>
+      </div>
+      <div class="pc">
+        <div class="pc-tier">Team</div>
+        <div class="pc-price"><sup>£</sup>89</div>
+        <div class="pc-per">up to 5 advisers</div>
+        <ul><li>Unlimited notes</li><li>Full MCOB output</li><li>Consumer Duty checklist</li><li>Priority support</li><li>5 adviser seats</li></ul>
+        <button class="btn btn-outline btn-full" onclick="upgradeTeam()">Upgrade to Team →</button>
+      </div>
+    </div>
+    <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:24px">🔒 Payments secured by Stripe. Cancel anytime. You'll be taken to a secure checkout.</p>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════
      OWNER LOGIN
-════════════════════════════════════ -->
-<div id="loginScreen" style="display:none">
-  <div class="login-box">
-    <div class="login-logo">Mortgage<span>Note</span> AI</div>
-    <span class="login-label">Owner Dashboard</span>
-    <div class="lf"><label>Username</label><input type="text" id="loginUser" placeholder="owner" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-    <div class="lf"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-    <button class="login-btn" onclick="doLogin()">Sign in →</button>
-    <div class="login-error" id="loginError">Incorrect username or password.</div>
-    <div class="login-hint">Access via yourdomain.co.uk?admin</div>
+══════════════════════════════════ -->
+<div id="page-owner-login" class="page">
+  <div class="owner-body">
+    <div class="owner-box">
+      <div class="owner-logo">Mortgage<span>Note</span> AI</div>
+      <span class="owner-sub">Owner dashboard</span>
+      <div class="field" style="text-align:left"><label>Username</label><input type="text" id="ow_user" placeholder="owner" onkeydown="if(event.key==='Enter')ownerLogin()"/></div>
+      <div class="field" style="text-align:left"><label>Password</label><input type="password" id="ow_pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')ownerLogin()"/></div>
+      <button class="btn btn-gold btn-full" onclick="ownerLogin()">Sign in →</button>
+      <div id="ow_err" style="color:#f87171;font-size:13px;margin-top:12px;display:none">Incorrect credentials.</div>
+      <div style="font-size:11px;color:rgba(136,153,170,0.3);margin-top:20px">Access via yourdomain.co.uk?admin</div>
+    </div>
   </div>
 </div>
  
-<!-- ════════════════════════════════════
-     ADMIN DASHBOARD
-════════════════════════════════════ -->
-<div id="dashboard">
-  <div class="admin-nav">
-    <div><span class="admin-logo">Mortgage<span>Note</span> AI <small>Owner Dashboard</small></span></div>
-    <div style="display:flex;align-items:center;gap:14px">
-      <span class="admin-user">Signed in as <strong id="adminUserLabel"></strong></span>
-      <button class="logout-btn" onclick="doLogout()">Sign out</button>
+<!-- ══════════════════════════════════
+     OWNER DASHBOARD
+══════════════════════════════════ -->
+<div id="page-owner-dash" class="page">
+  <div class="dash-nav">
+    <div><span style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--white)">Mortgage<span style="color:var(--gold)">Note</span> AI <small style="font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-left:10px">Owner</small></span></div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:13px;color:var(--muted)">Signed in as <strong id="ownerUserLabel" style="color:var(--gold2)"></strong></span>
+      <button class="btn btn-ghost btn-sm" onclick="ownerLogout()">Sign out</button>
     </div>
   </div>
-  <div class="admin-body">
-    <div class="admin-greeting" id="greetText"></div>
-    <div class="admin-date" id="adminDate"></div>
- 
-    <div class="admin-tabs">
-      <button class="tab active" onclick="switchTab('overview',this)">Overview</button>
-      <button class="tab" onclick="switchTab('subscribers',this)">Subscribers</button>
-      <button class="tab" onclick="switchTab('settings',this)">Settings</button>
+  <div class="dash-body">
+    <div class="dash-greeting" id="dashGreet"></div>
+    <div class="dash-date" id="dashDate"></div>
+    <div class="dash-tabs">
+      <button class="d-tab active" onclick="dTab('overview',this)">Overview</button>
+      <button class="d-tab" onclick="dTab('subscribers',this)">Subscribers</button>
+      <button class="d-tab" onclick="dTab('settings',this)">Settings</button>
     </div>
  
-    <!-- OVERVIEW -->
-    <div class="tab-panel active" id="tab-overview">
+    <!-- Overview -->
+    <div class="d-panel active" id="dp-overview">
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">Monthly revenue</div><div class="stat-value" id="sMRR">£0</div><div class="stat-sub">MRR</div><div class="stat-badge up" id="sMRRbadge">↑ £0 recurring</div></div>
-        <div class="stat-card"><div class="stat-label">Paying subscribers</div><div class="stat-value" id="sSubs">0</div><div class="stat-sub">active customers</div><div class="stat-badge neutral" id="sTrials">0 on trial</div></div>
-        <div class="stat-card"><div class="stat-label">Notes generated</div><div class="stat-value" id="sNotes">0</div><div class="stat-sub">all time</div><div class="stat-badge up">active usage</div></div>
-        <div class="stat-card"><div class="stat-label">Annual run rate</div><div class="stat-value" id="sARR">£0</div><div class="stat-sub">ARR</div><div class="stat-badge neutral">MRR × 12</div></div>
+        <div class="stat-card"><div class="stat-label">Monthly revenue</div><div class="stat-val" id="dMRR">£0</div><div class="stat-sub">MRR</div><div class="stat-badge up" id="dMRRb">↑ £0 recurring</div></div>
+        <div class="stat-card"><div class="stat-label">Paying subscribers</div><div class="stat-val" id="dSubs">0</div><div class="stat-sub">active customers</div><div class="stat-badge neu" id="dTrials">0 on trial</div></div>
+        <div class="stat-card"><div class="stat-label">Notes generated</div><div class="stat-val" id="dNotes">0</div><div class="stat-sub">all time</div><div class="stat-badge up">platform-wide</div></div>
+        <div class="stat-card"><div class="stat-label">Annual run rate</div><div class="stat-val" id="dARR">£0</div><div class="stat-sub">ARR</div><div class="stat-badge neu">MRR × 12</div></div>
       </div>
-      <div class="admin-grid">
-        <div class="admin-card">
-          <div class="admin-card-header"><div class="admin-card-title">Revenue — last 6 months</div></div>
-          <div class="chart-area" id="revenueChart"></div>
+      <div class="d-grid">
+        <div class="d-card">
+          <div class="d-card-hdr"><div class="d-card-title">Revenue — last 6 months</div></div>
+          <div class="chart-area" id="dChart"></div>
         </div>
-        <div class="admin-card">
-          <div class="admin-card-header"><div class="admin-card-title">Recent sign-ups</div><button class="card-action" onclick="switchTab('subscribers',document.querySelectorAll('.tab')[1])">View all →</button></div>
-          <table><thead><tr><th>Name</th><th>Plan</th><th>Joined</th></tr></thead><tbody id="recentBody"></tbody></table>
+        <div class="d-card">
+          <div class="d-card-hdr"><div class="d-card-title">Recent sign-ups</div><button class="d-act" onclick="dTab('subscribers',document.querySelectorAll('.d-tab')[1])">View all →</button></div>
+          <table><thead><tr><th>Name</th><th>Plan</th><th>Joined</th></tr></thead><tbody id="dRecent"></tbody></table>
         </div>
       </div>
     </div>
  
-    <!-- SUBSCRIBERS -->
-    <div class="tab-panel" id="tab-subscribers">
-      <div class="admin-card" style="margin-bottom:20px">
-        <div class="admin-card-header"><div class="admin-card-title">All subscribers</div><span style="font-size:12px;color:var(--muted)" id="subCount"></span></div>
-        <table><thead><tr><th>Name</th><th>Email</th><th>Firm</th><th>Plan</th><th>Status</th><th>Joined</th><th></th></tr></thead><tbody id="subTable"></tbody></table>
-        <div class="add-sub-form">
-          <div class="add-sub-label">Add subscriber manually</div>
+    <!-- Subscribers -->
+    <div class="d-panel" id="dp-subscribers">
+      <div class="d-card" style="margin-bottom:18px">
+        <div class="d-card-hdr"><div class="d-card-title">All subscribers</div><span style="font-size:12px;color:var(--muted)" id="dSubCount"></span></div>
+        <table><thead><tr><th>Name</th><th>Email</th><th>Firm</th><th>Plan</th><th>Status</th><th>Verified</th><th>Joined</th><th></th></tr></thead><tbody id="dSubTable"></tbody></table>
+        <div class="add-sub-row">
+          <div class="add-sub-lbl">Add subscriber manually</div>
           <div class="form-row">
-            <input type="text" id="nName" placeholder="Full name"/>
-            <input type="email" id="nEmail" placeholder="Email"/>
-            <input type="text" id="nFirm" placeholder="Firm"/>
-            <select id="nPlan"><option value="free">Free</option><option value="pro">Pro £39</option><option value="team">Team £89</option></select>
-            <select id="nStatus"><option value="trial">Trial</option><option value="active">Active</option><option value="churned">Churned</option></select>
-            <button class="btn btn-gold btn-sm" onclick="addSub()">Add</button>
+            <input type="text" id="an_name" placeholder="Full name"/>
+            <input type="email" id="an_email" placeholder="Email"/>
+            <input type="text" id="an_firm" placeholder="Firm"/>
+            <select id="an_plan"><option value="free">Free</option><option value="pro">Pro £39</option><option value="team">Team £89</option></select>
+            <select id="an_status"><option value="trial">Trial</option><option value="active">Active</option><option value="churned">Churned</option></select>
+            <button class="btn btn-gold btn-sm" onclick="addDSub()">Add</button>
           </div>
         </div>
       </div>
     </div>
  
-    <!-- SETTINGS -->
-    <div class="tab-panel" id="tab-settings">
-      <div class="settings-grid">
-        <div class="settings-card">
-          <div class="settings-title">Login credentials</div>
-          <div class="sf"><label>New username</label><input type="text" id="newUser" placeholder="owner"/></div>
-          <div class="sf"><label>New password</label><input type="password" id="newPass" placeholder="New password"/></div>
-          <div class="sf"><label>Confirm password</label><input type="password" id="confPass" placeholder="Confirm"/></div>
-          <button class="save-btn" onclick="saveCreds()">Save credentials</button>
-          <div style="font-size:12px;color:var(--muted);margin-top:10px">Default login: owner / mortgagenote2026</div>
+    <!-- Settings -->
+    <div class="d-panel" id="dp-settings">
+      <div class="s-grid">
+        <div class="s-card">
+          <div class="s-title">Login credentials</div>
+          <div class="sf"><label>New username</label><input type="text" id="ow_newuser" placeholder="owner"/></div>
+          <div class="sf"><label>New password</label><input type="password" id="ow_newpass" placeholder="New password"/></div>
+          <div class="sf"><label>Confirm password</label><input type="password" id="ow_confpass" placeholder="Confirm"/></div>
+          <button class="save-btn" onclick="saveOwnerCreds()">Save credentials</button>
+          <div style="font-size:12px;color:var(--muted);margin-top:10px">Default: owner / mortgagenote2026</div>
         </div>
-        <div class="settings-card">
-          <div class="settings-title">Stripe payment links</div>
-          <div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6">Paste your Stripe links here. The Pro and Team buy buttons will use these automatically.</div>
-          <div class="sf"><label>Pro plan link (£39/mo)</label><input type="url" id="stripeProLink" placeholder="https://buy.stripe.com/..."/></div>
-          <div class="sf"><label>Team plan link (£89/mo)</label><input type="url" id="stripeTeamLink" placeholder="https://buy.stripe.com/..."/></div>
-          <button class="save-btn" onclick="saveStripe()">Save Stripe links</button>
+        <div class="s-card">
+          <div class="s-title">Stripe payment links</div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6">Paste your Stripe links. Pro and Team upgrade buttons will use these.</p>
+          <div class="sf"><label>Pro plan link (£39/mo)</label><input type="url" id="ow_stripe_pro" placeholder="https://buy.stripe.com/..."/></div>
+          <div class="sf"><label>Team plan link (£89/mo)</label><input type="url" id="ow_stripe_team" placeholder="https://buy.stripe.com/..."/></div>
+          <button class="save-btn" onclick="saveStripe()">Save links</button>
         </div>
-        <div class="settings-card">
-          <div class="settings-title">Data</div>
+        <div class="s-card">
+          <div class="s-title">Data management</div>
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
             <button class="btn btn-outline btn-sm" onclick="exportCSV()" style="justify-content:flex-start">⬇ Export subscribers CSV</button>
             <button class="btn btn-danger btn-sm" onclick="confirmReset()" style="justify-content:flex-start">🗑 Reset all data</button>
           </div>
         </div>
-        <div class="settings-card">
-          <div class="settings-title">How to access your dashboard</div>
-          <div style="font-size:13px;color:var(--muted);line-height:1.7">
-            Go to:<br/>
-            <code style="background:rgba(255,255,255,0.06);padding:4px 8px;border-radius:4px;font-size:13px;color:var(--gold2)">yourdomain.co.uk?admin</code><br/><br/>
-            This page is invisible to customers. Bookmark it for easy access. Your login is saved in the browser on this device.
-          </div>
+        <div class="s-card">
+          <div class="s-title">Dashboard access</div>
+          <p style="font-size:13px;color:var(--muted);line-height:1.7">Bookmark this URL for quick access:<br/><code style="background:rgba(255,255,255,0.06);padding:4px 8px;border-radius:4px;font-size:12px;color:var(--gold2)">yourdomain.co.uk?admin</code><br/><br/>Invisible to customers. No link exists on the public site.</p>
         </div>
       </div>
     </div>
+ 
+  </div>
+</div>
+ 
+<!-- User menu dropdown -->
+<div class="overlay" id="userMenuOverlay" onclick="closeUserMenu(event)">
+  <div id="userMenuPanel" style="position:fixed;top:66px;right:20px;background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:6px;min-width:200px;animation:fadeUp 0.2s ease">
+    <div style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:4px">
+      <div style="font-size:14px;font-weight:500;color:var(--white)" id="menuName"></div>
+      <div style="font-size:12px;color:var(--muted)" id="menuEmail"></div>
+      <div style="margin-top:6px" id="menuPlan"></div>
+    </div>
+    <button onclick="showPage('page-plans');closeUserMenu()" style="width:100%;text-align:left;background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 14px;border-radius:7px;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">⭐ Upgrade plan</button>
+    <button onclick="doAppLogout()" style="width:100%;text-align:left;background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 14px;border-radius:7px;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">Sign out</button>
+  </div>
+</div>
+ 
+<!-- Forgot password modal -->
+<div class="overlay" id="forgotOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('forgotOverlay').classList.remove('open')">×</button>
+    <h2>Reset password</h2>
+    <p>Enter your email and we'll send you a reset link.</p>
+    <div class="field"><label>Email address</label><input type="email" id="forgot_email" placeholder="james@yourfirm.co.uk"/></div>
+    <button class="btn btn-gold btn-full" onclick="sendReset()">Send reset link</button>
   </div>
 </div>
  
@@ -524,276 +916,557 @@ tr:hover td{background:rgba(255,255,255,0.015)}
  
 <script>
 // ══════════════════════════════════════
-// DEFAULT CREDENTIALS (change in Settings)
+// STATE
 // ══════════════════════════════════════
-function getCred(k, def){ return localStorage.getItem('mn_'+k) || def; }
+const FREE_LIMIT = 5;
+let currentStep = 1;
+ 
+// ══════════════════════════════════════
+// DATA HELPERS
+// ══════════════════════════════════════
+function getUsers(){ try{return JSON.parse(localStorage.getItem('mn_users')||'[]')}catch{return[]} }
+function saveUsers(a){ localStorage.setItem('mn_users',JSON.stringify(a)) }
+function getAdminSubs(){ try{return JSON.parse(localStorage.getItem('mn_subs')||'[]')}catch{return[]} }
+function saveAdminSubs(a){ localStorage.setItem('mn_subs',JSON.stringify(a)) }
+function getSession(){ try{return JSON.parse(sessionStorage.getItem('mn_session')||'null')}catch{return null} }
+function setSession(u){ sessionStorage.setItem('mn_session',JSON.stringify(u)) }
+function clearSession(){ sessionStorage.removeItem('mn_session') }
+function getPersist(){ try{return JSON.parse(localStorage.getItem('mn_persist')||'null')}catch{return null} }
+function setPersist(u){ localStorage.setItem('mn_persist',JSON.stringify(u)) }
+function clearPersist(){ localStorage.removeItem('mn_persist') }
+function getNoteCount(email){ return parseInt(localStorage.getItem('mn_nc_'+btoa(email))||'0') }
+function incNoteCount(email){ localStorage.setItem('mn_nc_'+btoa(email), getNoteCount(email)+1) }
+function getTotalNotes(){ return parseInt(localStorage.getItem('mn_total_notes')||'0') }
+function incTotalNotes(){ localStorage.setItem('mn_total_notes', getTotalNotes()+1) }
+function g(id){ return (document.getElementById(id)||{}).value||'' }
  
 // ══════════════════════════════════════
 // ROUTING
 // ══════════════════════════════════════
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>{p.classList.remove('active')});
+  const el = document.getElementById(id);
+  if(el){ el.classList.add('active'); window.scrollTo(0,0); }
+  if(id==='page-landing') initReveal();
+  if(id==='page-app') initApp();
+  if(id==='page-owner-dash') loadDash();
+}
+ 
 function route(){
-  const isAdmin = new URLSearchParams(location.search).has('admin');
-  const authed  = sessionStorage.getItem('mn_auth') === '1';
-  ['landing','loginScreen','dashboard'].forEach(id => {
-    const el = document.getElementById(id);
-    el.style.display = 'none';
-    if(id === 'loginScreen') el.style.alignItems = 'center';
-  });
-  if(!isAdmin){
-    document.getElementById('landing').style.display = 'block';
-    initReveal();
-  } else if(authed){
-    showDash();
+  const params = new URLSearchParams(location.search);
+  const isAdmin = params.has('admin');
+  const ownerAuthed = sessionStorage.getItem('mn_owner_auth')==='1';
+  if(isAdmin){
+    if(ownerAuthed){ showPage('page-owner-dash'); initOwnerDash(); }
+    else showPage('page-owner-login');
+    return;
+  }
+  // Check for persisted or session login
+  const session = getSession() || getPersist();
+  if(session){
+    setSession(session);
+    showPage('page-app');
   } else {
-    const ls = document.getElementById('loginScreen');
-    ls.style.display = 'flex';
-    ls.style.justifyContent = 'center';
-    setTimeout(()=>document.getElementById('loginUser').focus(),100);
+    showPage('page-landing');
   }
 }
  
 // ══════════════════════════════════════
-// LOGIN / LOGOUT
+// SIGN UP
+// ══════════════════════════════════════
+function doSignup(){
+  const name = g('su_name').trim();
+  const email = g('su_email').trim().toLowerCase();
+  const firm = g('su_firm').trim();
+  const pass = g('su_pass');
+  const pass2 = g('su_pass2');
+  let ok = true;
+ 
+  if(!name){ setErr('su_name',true); ok=false; }
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ setErr('su_email',true); ok=false; }
+  if(pass.length < 8){ setErr('su_pass',true); ok=false; }
+  if(pass !== pass2){ setErr('su_pass2',true); document.querySelector('#su_pass2').parentElement.parentElement.querySelector('.err').textContent='Passwords do not match'; ok=false; }
+  if(!document.getElementById('su_terms').checked){ showToast('Please accept the Terms of Service','err'); ok=false; }
+  if(!ok) return;
+ 
+  const users = getUsers();
+  if(users.find(u=>u.email===email)){ document.getElementById('su_email_err').textContent='An account with this email already exists'; setErr('su_email',true); return; }
+ 
+  const user = { name, email, firm, pass: btoa(pass), plan:'free', verified:false, joined: new Date().toLocaleDateString('en-GB') };
+  users.push(user);
+  saveUsers(users);
+ 
+  // Also add to admin subs list
+  const subs = getAdminSubs();
+  subs.push({ name, email, firm, plan:'free', status:'trial', verified:false, joined:user.joined });
+  saveAdminSubs(subs);
+ 
+  document.getElementById('verifyEmail').textContent = email;
+  document.getElementById('signupBox').style.display = 'none';
+  document.getElementById('verifyBox').style.display = 'block';
+}
+ 
+function verifyEmail(){
+  const email = document.getElementById('verifyEmail').textContent;
+  const users = getUsers();
+  const u = users.find(u=>u.email===email);
+  if(u){ u.verified = true; saveUsers(users); }
+  // Also update admin subs
+  const subs = getAdminSubs();
+  const s = subs.find(s=>s.email===email);
+  if(s){ s.verified = true; saveAdminSubs(subs); }
+ 
+  setSession(u);
+  showPage('page-app');
+  showToast('✓ Email verified — welcome to MortgageNote AI!');
+}
+ 
+// ══════════════════════════════════════
+// LOGIN
 // ══════════════════════════════════════
 function doLogin(){
-  const u = document.getElementById('loginUser').value.trim();
-  const p = document.getElementById('loginPass').value;
-  if(u === getCred('user','owner') && p === getCred('pass','mortgagenote2026')){
-    sessionStorage.setItem('mn_auth','1');
-    sessionStorage.setItem('mn_who', u);
-    document.getElementById('loginError').style.display='none';
-    showDash();
+  const email = g('li_email').trim().toLowerCase();
+  const pass = g('li_pass');
+  const remember = document.getElementById('li_remember').checked;
+ 
+  const users = getUsers();
+  const u = users.find(u=>u.email===email && u.pass===btoa(pass));
+ 
+  const errEl = document.getElementById('li_err');
+  if(!u){
+    errEl.style.display='block';
+    document.getElementById('li_pass').parentElement.parentElement.classList.add('error');
+    return;
+  }
+  errEl.style.display='none';
+ 
+  if(!u.verified){
+    showToast('Please verify your email first. Check your inbox.','err');
+    return;
+  }
+ 
+  setSession(u);
+  if(remember) setPersist(u);
+  showPage('page-app');
+}
+ 
+function doAppLogout(){
+  clearSession();
+  clearPersist();
+  closeUserMenu();
+  showPage('page-landing');
+  showToast('Signed out successfully');
+}
+ 
+// ══════════════════════════════════════
+// APP INIT
+// ══════════════════════════════════════
+function initApp(){
+  const u = getSession() || getPersist();
+  if(!u){ showPage('page-login'); return; }
+  setSession(u);
+ 
+  document.getElementById('userName').textContent = u.name.split(' ')[0];
+  document.getElementById('userAvatar').textContent = u.name.charAt(0).toUpperCase();
+  document.getElementById('menuName').textContent = u.name;
+  document.getElementById('menuEmail').textContent = u.email;
+ 
+  const plan = u.plan || 'free';
+  const pill = document.getElementById('planPill');
+  pill.textContent = plan.charAt(0).toUpperCase()+plan.slice(1);
+  pill.className = 'plan-pill ' + plan;
+  document.getElementById('menuPlan').innerHTML = planBadgeHTML(plan);
+ 
+  updateNotesBanner(u);
+  document.getElementById('f_date').valueAsDate = new Date();
+}
+ 
+function updateNotesBanner(u){
+  const plan = u.plan || 'free';
+  const banner = document.getElementById('notesBanner');
+  const notesLeft = document.getElementById('notesLeft');
+  const upgradeBtn = document.getElementById('upgradeBtn');
+  const genBtn = document.getElementById('generateBtn');
+ 
+  if(plan === 'free'){
+    const used = getNoteCount(u.email);
+    const left = Math.max(0, FREE_LIMIT - used);
+    notesLeft.innerHTML = `<strong>${left} of ${FREE_LIMIT}</strong> free notes remaining this month`;
+    if(left === 0){
+      banner.className = 'notes-banner block';
+      upgradeBtn.style.display = 'inline-flex';
+      genBtn.disabled = true;
+      genBtn.textContent = '⚠ Upgrade to generate more notes';
+    } else if(left <= 2){
+      banner.className = 'notes-banner warn';
+      upgradeBtn.style.display = 'inline-flex';
+      genBtn.disabled = false;
+      genBtn.textContent = '✦ Generate suitability note';
+    } else {
+      banner.className = 'notes-banner';
+      upgradeBtn.style.display = 'none';
+      genBtn.disabled = false;
+      genBtn.textContent = '✦ Generate suitability note';
+    }
   } else {
-    document.getElementById('loginError').style.display='block';
-    document.getElementById('loginPass').value='';
-    document.getElementById('loginPass').focus();
+    notesLeft.innerHTML = `<strong>Unlimited notes</strong> — ${plan} plan`;
+    banner.className = 'notes-banner';
+    upgradeBtn.style.display = 'none';
+    genBtn.disabled = false;
+    genBtn.textContent = '✦ Generate suitability note';
   }
 }
-function doLogout(){
-  sessionStorage.removeItem('mn_auth');
+ 
+// ══════════════════════════════════════
+// STEP NAVIGATION
+// ══════════════════════════════════════
+function goStep(n){
+  for(let i=1;i<=5;i++){
+    document.getElementById('sp'+i).classList.toggle('active',i===n);
+    const sb = document.getElementById('sb'+i);
+    sb.classList.remove('active','done');
+    if(i===n) sb.classList.add('active');
+    else if(i<n) sb.classList.add('done');
+  }
+  currentStep=n;
+  window.scrollTo(0,0);
+}
+ 
+// ══════════════════════════════════════
+// GENERATE NOTE
+// ══════════════════════════════════════
+async function generateNote(){
+  const u = getSession();
+  if(!u){ showPage('page-login'); return; }
+ 
+  if(u.plan==='free' && getNoteCount(u.email) >= FREE_LIMIT){
+    showPage('page-plans');
+    return;
+  }
+ 
+  goStep(5);
+  const area = document.getElementById('outputArea');
+  document.getElementById('outputActions').style.display = 'none';
+ 
+  area.innerHTML = `<div class="output-box">
+    <div class="output-header">
+      <div class="output-label"><div class="pulse-dot"></div> Generating suitability note…</div>
+    </div>
+    <div class="loading-note"><div class="loading-spinner"></div> Analysing client data and drafting FCA-compliant documentation…</div>
+  </div>`;
+ 
+  const prompt = buildPrompt();
+ 
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1500,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.find(b=>b.type==='text')?.text;
+ 
+    if(!text || data.error){
+      throw new Error(data.error?.message || 'No response from AI');
+    }
+ 
+    // Track note usage
+    incNoteCount(u.email);
+    incTotalNotes();
+ 
+    // Build compliance flags
+    const flags = [];
+    const tl = text.toLowerCase();
+    if(tl.includes('suitab')) flags.push({type:'ok',label:'Suitability evidenced'});
+    if(tl.includes('affordab')) flags.push({type:'ok',label:'Affordability documented'});
+    if(tl.includes('consumer duty')) flags.push({type:'ok',label:'Consumer Duty met'});
+    if(tl.includes('vulnerab')) flags.push({type:'ok',label:'Vulnerability assessed'});
+    if(tl.includes('alternat')) flags.push({type:'ok',label:'Alternatives considered'});
+    if(tl.includes('protection')&&tl.includes('declin')) flags.push({type:'warn',label:'Protection declined — documented'});
+    if(tl.includes('review needed')) flags.push({type:'warn',label:'Action required — see note'});
+ 
+    area.innerHTML = `<div class="output-box">
+      <div class="output-header">
+        <div class="output-label"><div class="pulse-dot"></div> FCA suitability note — ${esc(g('f_name')||'Client')} — ${g('f_date')||new Date().toLocaleDateString('en-GB')}</div>
+        <button class="copy-btn" onclick="copyNote()">Copy note</button>
+      </div>
+      <div class="output-text" id="noteText">${esc(text)}</div>
+      ${flags.length?`<div class="flags">${flags.map(f=>`<span class="flag flag-${f.type}">${f.type==='ok'?'✓':'⚠'} ${f.label}</span>`).join('')}</div>`:''}
+    </div>`;
+    document.getElementById('outputActions').style.display = 'flex';
+ 
+    // Update banner
+    updateNotesBanner(u);
+ 
+  } catch(err){
+    area.innerHTML = `<div class="output-box">
+      <div style="color:#f87171;margin-bottom:12px;font-weight:500">⚠ Could not generate note</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.6">
+        This is a demo version. To connect real AI generation:<br/>
+        1. Deploy this file to Vercel<br/>
+        2. Add your Anthropic API key as an environment variable<br/>
+        3. Add a small server function to proxy the API call<br/><br/>
+        Error: ${esc(err.message)}
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:16px" onclick="goStep(4)">← Back to form</button>
+    </div>`;
+  }
+}
+ 
+function buildPrompt(){
+  return `You are an expert UK mortgage compliance writer. Generate a professional FCA-compliant mortgage suitability note.
+ 
+CLIENT: ${g('f_name')} | Ages: ${g('f_ages')} | Meeting: ${g('f_date')}
+Employment: ${g('f_emp')} | Income: £${g('f_income')} | Credit: ${g('f_credit')}
+Dependants: ${g('f_dep')}
+ 
+MORTGAGE: ${g('f_type')} | Property: £${g('f_pval')} | Loan: £${g('f_mamt')}
+Deposit/equity: £${g('f_dep2')} | Term: ${g('f_term')} years | Repayment: ${g('f_rep')}
+Rate: ${g('f_rate')} at ${g('f_irate')}% | Lender: ${g('f_lender')} | Monthly payment: £${g('f_mpay')}
+ 
+NEEDS: ${g('f_obj')}
+Outgoings: ${g('f_out')}
+Risk attitude: ${g('f_risk')}
+Future plans: ${g('f_fut')}
+Alternatives: ${g('f_alt')}
+Protection: ${g('f_prot')}
+Vulnerability: ${g('f_vul')}
+Understanding: ${g('f_und')}
+Adviser notes: ${g('f_extra')}
+ 
+Generate a complete FCA MCOB-compliant suitability note with these sections:
+1. CLIENT BACKGROUND & CIRCUMSTANCES
+2. MORTGAGE REQUIREMENT & OBJECTIVES
+3. PRODUCT RECOMMENDATION & RATIONALE
+4. ALTERNATIVES CONSIDERED
+5. AFFORDABILITY ASSESSMENT
+6. PROTECTION & ASSOCIATED NEEDS
+7. CONSUMER DUTY & VULNERABILITY ASSESSMENT
+8. COMPLIANCE CHECKLIST (mark each as PASS, REVIEW NEEDED, or N/A)
+ 
+Be detailed, professional, and FCA audit-ready. Use formal UK English.`;
+}
+ 
+function copyNote(){
+  const el = document.getElementById('noteText');
+  if(!el) return;
+  navigator.clipboard.writeText(el.innerText).then(()=>{
+    showToast('✓ Note copied to clipboard');
+    const btn = document.querySelector('.copy-btn');
+    if(btn){btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy note',2000)}
+  });
+}
+ 
+function newNote(){
+  // Reset form
+  document.querySelectorAll('#page-app input, #page-app select, #page-app textarea').forEach(el=>{
+    if(el.type!=='date') el.value='';
+  });
+  document.getElementById('f_date').valueAsDate = new Date();
+  document.getElementById('outputArea').innerHTML = '';
+  document.getElementById('outputActions').style.display = 'none';
+  goStep(1);
+}
+ 
+// ══════════════════════════════════════
+// UPGRADE
+// ══════════════════════════════════════
+function upgradePro(){
+  const link = localStorage.getItem('mn_stripe_pro');
+  if(link){ window.open(link,'_blank'); }
+  else { showToast('Stripe link not configured yet. Set it in the owner dashboard.','err'); }
+}
+function upgradeTeam(){
+  const link = localStorage.getItem('mn_stripe_team');
+  if(link){ window.open(link,'_blank'); }
+  else { showToast('Stripe link not configured yet. Set it in the owner dashboard.','err'); }
+}
+ 
+// ══════════════════════════════════════
+// OWNER AUTH
+// ══════════════════════════════════════
+function ownerLogin(){
+  const u = document.getElementById('ow_user').value.trim();
+  const p = document.getElementById('ow_pass').value;
+  if(u===(localStorage.getItem('mn_ow_user')||'owner') && p===(localStorage.getItem('mn_ow_pass')||'mortgagenote2026')){
+    sessionStorage.setItem('mn_owner_auth','1');
+    sessionStorage.setItem('mn_owner_who',u);
+    document.getElementById('ow_err').style.display='none';
+    showPage('page-owner-dash');
+    initOwnerDash();
+  } else {
+    document.getElementById('ow_err').style.display='block';
+    document.getElementById('ow_pass').value='';
+  }
+}
+function ownerLogout(){
+  sessionStorage.removeItem('mn_owner_auth');
   location.href = location.pathname+'?admin';
 }
- 
-// ══════════════════════════════════════
-// DASHBOARD INIT
-// ══════════════════════════════════════
-function showDash(){
-  document.getElementById('loginScreen').style.display='none';
-  document.getElementById('dashboard').style.display='block';
-  const who = sessionStorage.getItem('mn_who')||'owner';
-  document.getElementById('adminUserLabel').textContent = who;
-  const h = new Date().getHours();
-  document.getElementById('greetText').textContent = h<12?'Good morning, Tyler.':h<18?'Good afternoon.':'Good evening, Tyler.';
-  document.getElementById('adminDate').textContent = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+function initOwnerDash(){
+  const who = sessionStorage.getItem('mn_owner_who')||'owner';
+  document.getElementById('ownerUserLabel').textContent = who;
+  const h=new Date().getHours();
+  document.getElementById('dashGreet').textContent=h<12?'Good morning.':h<18?'Good afternoon.':'Good evening.';
+  document.getElementById('dashDate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('ow_newuser').value=localStorage.getItem('mn_ow_user')||'owner';
+  document.getElementById('ow_stripe_pro').value=localStorage.getItem('mn_stripe_pro')||'';
+  document.getElementById('ow_stripe_team').value=localStorage.getItem('mn_stripe_team')||'';
   loadDash();
-  loadSettings();
 }
  
 // ══════════════════════════════════════
-// DATA
+// DASHBOARD DATA
 // ══════════════════════════════════════
-function getSubs(){ try{return JSON.parse(localStorage.getItem('mn_subs')||'[]')}catch{return[]} }
-function saveSubs(a){ localStorage.setItem('mn_subs',JSON.stringify(a)) }
-function calcMRR(subs){ return subs.reduce((t,s)=>{ if(s.status==='churned')return t; if(s.plan==='pro')return t+39; if(s.plan==='team')return t+89; return t; },0) }
- 
+function calcMRR(subs){ return subs.reduce((t,s)=>{if(s.status==='churned')return t;if(s.plan==='pro')return t+39;if(s.plan==='team')return t+89;return t;},0) }
 function loadDash(){
-  const subs = getSubs();
-  const mrr  = calcMRR(subs);
-  const paying = subs.filter(s=>s.status!=='churned'&&s.plan!=='free').length;
-  const trials = subs.filter(s=>s.status==='trial').length;
-  const notes  = parseInt(localStorage.getItem('mn_notes')||'0');
- 
-  document.getElementById('sMRR').textContent  = '£'+mrr.toLocaleString();
-  document.getElementById('sSubs').textContent = paying;
-  document.getElementById('sNotes').textContent= notes.toLocaleString();
-  document.getElementById('sARR').textContent  = '£'+(mrr*12).toLocaleString();
-  document.getElementById('sMRRbadge').textContent = '↑ £'+mrr+' recurring';
-  document.getElementById('sTrials').textContent   = trials+' on trial';
-  document.getElementById('subCount').textContent  = subs.length+' total';
- 
-  // Recent table
-  const rec = [...subs].reverse().slice(0,5);
-  document.getElementById('recentBody').innerHTML = rec.length
-    ? rec.map(s=>`<tr><td>${esc(s.name)}</td><td>${planBadge(s.plan)}</td><td style="color:var(--muted)">${s.joined}</td></tr>`).join('')
-    : '<tr><td colspan="3" style="color:var(--muted);text-align:center;padding:20px">No subscribers yet</td></tr>';
- 
-  // Full table
-  document.getElementById('subTable').innerHTML = subs.length
-    ? subs.map((s,i)=>`<tr>
-        <td>${esc(s.name)}</td>
-        <td style="color:var(--muted)">${esc(s.email)}</td>
-        <td style="color:var(--muted)">${esc(s.firm||'—')}</td>
-        <td>${planBadge(s.plan)}</td>
-        <td>${statusBadge(s.status)}</td>
-        <td style="color:var(--muted)">${s.joined}</td>
-        <td><button onclick="delSub(${i})" style="background:none;border:none;color:#6b7280;cursor:pointer;font-size:18px;padding:0 6px" title="Remove">×</button></td>
-      </tr>`).join('')
-    : '<tr><td colspan="7" style="color:var(--muted);text-align:center;padding:24px">No subscribers yet — add one below or wait for sign-ups</td></tr>';
- 
-  renderChart(subs, mrr);
+  const subs=getAdminSubs();
+  const mrr=calcMRR(subs);
+  const paying=subs.filter(s=>s.status!=='churned'&&s.plan!=='free').length;
+  const trials=subs.filter(s=>s.status==='trial').length;
+  const notes=getTotalNotes();
+  document.getElementById('dMRR').textContent='£'+mrr.toLocaleString();
+  document.getElementById('dSubs').textContent=paying;
+  document.getElementById('dNotes').textContent=notes.toLocaleString();
+  document.getElementById('dARR').textContent='£'+(mrr*12).toLocaleString();
+  document.getElementById('dMRRb').textContent='↑ £'+mrr+' recurring';
+  document.getElementById('dTrials').textContent=trials+' on trial';
+  document.getElementById('dSubCount').textContent=subs.length+' total';
+  const rec=[...subs].reverse().slice(0,5);
+  document.getElementById('dRecent').innerHTML=rec.length?rec.map(s=>`<tr><td>${esc(s.name)}</td><td>${planBadgeHTML(s.plan)}</td><td style="color:var(--muted)">${s.joined}</td></tr>`).join(''):'<tr><td colspan="3" style="color:var(--muted);text-align:center;padding:20px">No subscribers yet</td></tr>';
+  document.getElementById('dSubTable').innerHTML=subs.length?subs.map((s,i)=>`<tr>
+    <td>${esc(s.name)}</td><td style="color:var(--muted)">${esc(s.email)}</td><td style="color:var(--muted)">${esc(s.firm||'—')}</td>
+    <td>${planBadgeHTML(s.plan)}</td><td>${statusBadge(s.status)}</td>
+    <td>${s.verified?'<span class="badge badge-verified">✓ Verified</span>':'<span class="badge badge-unverified">Pending</span>'}</td>
+    <td style="color:var(--muted)">${s.joined}</td>
+    <td><button onclick="delDSub(${i})" style="background:none;border:none;color:#6b7280;cursor:pointer;font-size:18px;padding:0 6px">×</button></td>
+  </tr>`).join(''):'<tr><td colspan="8" style="color:var(--muted);text-align:center;padding:24px">No subscribers yet</td></tr>';
+  renderChart(subs,mrr);
 }
+function renderChart(subs,mrr){
+  const months=[];
+  for(let i=5;i>=0;i--){const d=new Date(new Date().getFullYear(),new Date().getMonth()-i,1);months.push({label:d.toLocaleDateString('en-GB',{month:'short'}),val:0})}
+  subs.forEach((s,idx)=>{const mi=Math.min(idx,5);if(s.plan==='pro'&&s.status!=='churned')months[mi].val+=39;if(s.plan==='team'&&s.status!=='churned')months[mi].val+=89;});
+  const max=Math.max(...months.map(m=>m.val),100);
+  document.getElementById('dChart').innerHTML=months.map(m=>`<div class="bar-wrap"><div class="bar-v">${m.val?'£'+m.val:''}</div><div class="bar" style="height:${Math.max((m.val/max)*120,4)}px"></div><div class="bar-lbl">${m.label}</div></div>`).join('');
+}
+function addDSub(){
+  const name=document.getElementById('an_name').value.trim();
+  const email=document.getElementById('an_email').value.trim();
+  if(!name||!email){showToast('Name and email required','err');return}
+  const subs=getAdminSubs();
+  subs.push({name,email,firm:document.getElementById('an_firm').value.trim(),plan:document.getElementById('an_plan').value,status:document.getElementById('an_status').value,verified:true,joined:new Date().toLocaleDateString('en-GB')});
+  saveAdminSubs(subs);
+  ['an_name','an_email','an_firm'].forEach(id=>document.getElementById(id).value='');
+  loadDash();showToast('✓ Subscriber added');
+}
+function delDSub(i){if(!confirm('Remove?'))return;const s=getAdminSubs();s.splice(i,1);saveAdminSubs(s);loadDash();showToast('Removed')}
+function saveOwnerCreds(){
+  const u=document.getElementById('ow_newuser').value.trim();
+  const p=document.getElementById('ow_newpass').value;
+  const c=document.getElementById('ow_confpass').value;
+  if(!u){showToast('Username required','err');return}
+  if(p&&p!==c){showToast('Passwords do not match','err');return}
+  localStorage.setItem('mn_ow_user',u);
+  if(p)localStorage.setItem('mn_ow_pass',p);
+  sessionStorage.setItem('mn_owner_who',u);
+  document.getElementById('ownerUserLabel').textContent=u;
+  document.getElementById('ow_newpass').value='';document.getElementById('ow_confpass').value='';
+  showToast('✓ Credentials saved');
+}
+function saveStripe(){
+  localStorage.setItem('mn_stripe_pro',document.getElementById('ow_stripe_pro').value);
+  localStorage.setItem('mn_stripe_team',document.getElementById('ow_stripe_team').value);
+  showToast('✓ Stripe links saved');
+}
+function exportCSV(){
+  const subs=getAdminSubs();
+  if(!subs.length){showToast('No subscribers yet','err');return}
+  const rows=[['Name','Email','Firm','Plan','Status','Verified','Joined'],...subs.map(s=>[s.name,s.email,s.firm||'',s.plan,s.status,s.verified?'Yes':'No',s.joined])];
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='subscribers.csv';a.click();
+  showToast('✓ CSV downloaded');
+}
+function confirmReset(){if(confirm('Delete ALL data?')){localStorage.removeItem('mn_subs');localStorage.removeItem('mn_total_notes');loadDash();showToast('Data cleared')}}
  
-function planBadge(p){
+// ══════════════════════════════════════
+// UI HELPERS
+// ══════════════════════════════════════
+function planBadgeHTML(p){
   if(p==='pro')return'<span class="badge badge-pro">Pro £39</span>';
   if(p==='team')return'<span class="badge badge-team">Team £89</span>';
   return'<span class="badge badge-free">Free</span>';
 }
 function statusBadge(s){
-  const m={active:'badge-active',trial:'badge-trial',churned:'badge-churned'};
+  const m={active:'badge-active',trial:'badge-trial',churned:'badge-churned',pending:'badge-pending'};
   return`<span class="badge ${m[s]||'badge-free'}">${s}</span>`;
 }
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
- 
-function addSub(){
-  const name=document.getElementById('nName').value.trim();
-  const email=document.getElementById('nEmail').value.trim();
-  if(!name||!email){showToast('Name and email required');return}
-  const subs=getSubs();
-  subs.push({name,email,firm:document.getElementById('nFirm').value.trim(),plan:document.getElementById('nPlan').value,status:document.getElementById('nStatus').value,joined:new Date().toLocaleDateString('en-GB')});
-  saveSubs(subs);
-  ['nName','nEmail','nFirm'].forEach(id=>document.getElementById(id).value='');
-  loadDash();
-  showToast('✓ Subscriber added');
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function setErr(id,show){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.parentElement.classList.toggle('error',show);
 }
- 
-function delSub(i){
-  if(!confirm('Remove this subscriber?'))return;
-  const subs=getSubs();subs.splice(i,1);saveSubs(subs);loadDash();showToast('Subscriber removed');
+function clearErr(id){setErr(id,false)}
+function togglePw(id,btn){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.type=el.type==='password'?'text':'password';
+  btn.textContent=el.type==='password'?'👁':'🙈';
 }
- 
-function renderChart(subs, mrr){
-  const months=[];
-  for(let i=5;i>=0;i--){
-    const d=new Date(new Date().getFullYear(),new Date().getMonth()-i,1);
-    months.push({label:d.toLocaleDateString('en-GB',{month:'short'}),val:0});
-  }
-  subs.forEach((s,idx)=>{
-    const mi=Math.min(idx,5);
-    if(s.plan==='pro'&&s.status!=='churned')months[mi].val+=39;
-    if(s.plan==='team'&&s.status!=='churned')months[mi].val+=89;
-  });
-  const max=Math.max(...months.map(m=>m.val),100);
-  document.getElementById('revenueChart').innerHTML=months.map(m=>`
-    <div class="bar-wrap">
-      <div class="bar-val">${m.val?'£'+m.val:''}</div>
-      <div class="bar" style="height:${Math.max((m.val/max)*120,4)}px"></div>
-      <div class="bar-label">${m.label}</div>
-    </div>`).join('');
+function pwStrength(el){
+  const v=el.value;
+  let score=0;
+  if(v.length>=8)score++;if(v.length>=12)score++;
+  if(/[A-Z]/.test(v))score++;if(/[0-9]/.test(v))score++;if(/[^A-Za-z0-9]/.test(v))score++;
+  const bar=document.getElementById('su_pwbar');
+  const hint=document.getElementById('su_pwhint');
+  const colors=['#ef4444','#f97316','#eab308','#22c55e','#16a34a'];
+  const labels=['Too short','Weak','Fair','Strong','Very strong'];
+  const pct=[20,40,60,80,100];
+  const i=Math.max(0,Math.min(4,score-1));
+  if(bar){bar.style.width=pct[i]+'%';bar.style.background=colors[i]}
+  if(hint){hint.textContent=v?labels[i]:'';hint.style.color=colors[i]}
 }
- 
-// ══════════════════════════════════════
-// SETTINGS
-// ══════════════════════════════════════
-function loadSettings(){
-  document.getElementById('newUser').value = getCred('user','owner');
-  document.getElementById('stripeProLink').value = localStorage.getItem('mn_stripe_pro')||'';
-  document.getElementById('stripeTeamLink').value = localStorage.getItem('mn_stripe_team')||'';
-}
- 
-function saveCreds(){
-  const u=document.getElementById('newUser').value.trim();
-  const p=document.getElementById('newPass').value;
-  const c=document.getElementById('confPass').value;
-  if(!u){showToast('Username required');return}
-  if(p&&p!==c){showToast('Passwords do not match');return}
-  localStorage.setItem('mn_user',u);
-  if(p)localStorage.setItem('mn_pass',p);
-  sessionStorage.setItem('mn_who',u);
-  document.getElementById('adminUserLabel').textContent=u;
-  document.getElementById('newPass').value='';
-  document.getElementById('confPass').value='';
-  showToast('✓ Credentials saved — use them next login');
-}
- 
-function saveStripe(){
-  localStorage.setItem('mn_stripe_pro',document.getElementById('stripeProLink').value);
-  localStorage.setItem('mn_stripe_team',document.getElementById('stripeTeamLink').value);
-  showToast('✓ Stripe links saved');
-}
- 
-function exportCSV(){
-  const subs=getSubs();
-  if(!subs.length){showToast('No subscribers to export');return}
-  const rows=[['Name','Email','Firm','Plan','Status','Joined'],...subs.map(s=>[s.name,s.email,s.firm||'',s.plan,s.status,s.joined])];
-  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
-  const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download='subscribers.csv';a.click();
-  showToast('✓ CSV downloaded');
-}
- 
-function confirmReset(){
-  if(confirm('Delete ALL data? This cannot be undone.')){
-    localStorage.removeItem('mn_subs');localStorage.removeItem('mn_notes');
-    loadDash();showToast('Data cleared');
-  }
-}
- 
-// ══════════════════════════════════════
-// STRIPE BUY BUTTONS
-// ══════════════════════════════════════
-function buyPro(){
-  const link=localStorage.getItem('mn_stripe_pro');
-  if(link){window.open(link,'_blank')}else{openSignup()}
-}
-function buyTeam(){
-  const link=localStorage.getItem('mn_stripe_team');
-  if(link){window.open(link,'_blank')}else{openSignup()}
-}
- 
-// ══════════════════════════════════════
-// SIGNUP MODAL
-// ══════════════════════════════════════
-function openSignup(){
-  document.getElementById('signupModal').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-function closeSignup(){
-  document.getElementById('signupModal').classList.remove('open');
-  document.body.style.overflow='';
-}
-function handleSignup(){
-  const name=document.getElementById('suName').value.trim();
-  const email=document.getElementById('suEmail').value.trim();
-  if(!name||!email){alert('Please fill in your name and email.');return}
-  const subs=getSubs();
-  subs.push({name,email,firm:document.getElementById('suFirm').value.trim(),plan:'free',status:'trial',joined:new Date().toLocaleDateString('en-GB')});
-  saveSubs(subs);
-  document.getElementById('signupModalInner').innerHTML=`
-    <div style="text-align:center;padding:20px 0">
-      <div style="font-size:52px;margin-bottom:16px">✦</div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:30px;color:#fff;margin-bottom:10px">You're in.</div>
-      <div style="font-size:14px;color:#8899aa;margin-bottom:24px;line-height:1.6">Check your email for your login link.<br/>Your 14-day trial starts now.</div>
-      <button onclick="closeSignup()" style="background:#c9a84c;color:#08142a;border:none;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif">Close</button>
-    </div>`;
-}
- 
-// ══════════════════════════════════════
-// UTILS
-// ══════════════════════════════════════
-function switchTab(name,btn){
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  btn.classList.add('active');
-}
-function toggleFaq(el){
+function faq(el){
   const open=el.classList.contains('open');
   document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
   if(!open)el.classList.add('open');
 }
-function showToast(msg){
+function dTab(name,btn){
+  document.querySelectorAll('.d-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.d-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('dp-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='subscribers'||name==='overview')loadDash();
+}
+function showUserMenu(){document.getElementById('userMenuOverlay').classList.add('open')}
+function closeUserMenu(e){if(!e||e.target===document.getElementById('userMenuOverlay'))document.getElementById('userMenuOverlay').classList.remove('open')}
+function showForgot(){document.getElementById('forgotOverlay').classList.add('open')}
+function sendReset(){
+  const email=document.getElementById('forgot_email').value.trim();
+  if(!email){return}
+  document.getElementById('forgotOverlay').classList.remove('open');
+  showToast('Reset link sent to '+email+' (demo — no email sent in preview)');
+}
+function showToast(msg,type){
   const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
+  t.textContent=msg;t.className='toast show'+(type==='err'?' err':'');
   clearTimeout(window._tt);
-  window._tt=setTimeout(()=>t.classList.remove('show'),3000);
+  window._tt=setTimeout(()=>t.classList.remove('show'),3500);
 }
 function initReveal(){
-  const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible')}),{threshold:0.1});
+  const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:0.08});
   document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 }
  
-// Boot
+// ══════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════
 route();
 </script>
 </body>
