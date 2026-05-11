@@ -583,7 +583,7 @@ function showDash(){
   const who = sessionStorage.getItem('mn_who')||'owner';
   document.getElementById('adminUserLabel').textContent = who;
   const h = new Date().getHours();
-  document.getElementById('greetText').textContent = h<12?'Good morning.':h<18?'Good afternoon, Tyler.':'Good evening, Tyler.';
+  document.getElementById('greetText').textContent = h<12?'Good morning, Tyler.':h<18?'Good afternoon.':'Good evening, Tyler.';
   document.getElementById('adminDate').textContent = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   loadDash();
   loadSettings();
