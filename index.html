@@ -1311,7 +1311,7 @@ function initOwnerDash(){
   const who = sessionStorage.getItem('mn_owner_who')||'owner';
   document.getElementById('ownerUserLabel').textContent = who;
   const h=new Date().getHours();
-  document.getElementById('dashGreet').textContent=h<12?'Good morning.':h<18?'Good afternoon.':'Good evening.';
+  document.getElementById('dashGreet').textContent=h<12?'Good morning, Tyler.':h<18?'Good afternoon, Tyler.':'Good evening, Tyler.';
   document.getElementById('dashDate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   document.getElementById('ow_newuser').value=localStorage.getItem('mn_ow_user')||'owner';
   document.getElementById('ow_stripe_pro').value=localStorage.getItem('mn_stripe_pro')||'';
