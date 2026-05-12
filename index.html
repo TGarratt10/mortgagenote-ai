@@ -1024,7 +1024,7 @@ function verifyEmail(){
 // ══════════════════════════════════════
 // LOGIN
 // ══════════════════════════════════════
-function doLogin(){
+async function doLogin(){
   const email = g('li_email').trim().toLowerCase();
   const pass = g('li_pass');
   const remember = document.getElementById('li_remember').checked;
@@ -1045,9 +1045,39 @@ function doLogin(){
     return;
   }
  
-  setSession(u);
-  if(remember) setPersist(u);
+  // Check Stripe for any paid subscription and auto-upgrade if found
+  const upgradedUser = await checkStripeUpgrade(u);
+ 
+  setSession(upgradedUser);
+  if(remember) setPersist(upgradedUser);
   showPage('page-app');
+}
+ 
+// Checks /api/upgrades which queries Stripe directly for active subscriptions
+async function checkStripeUpgrade(u){
+  try {
+    const res = await fetch(`/api/upgrades?email=${encodeURIComponent(u.email)}`);
+    if(!res.ok) return u;
+    const data = await res.json();
+    if(data.plan && data.plan !== 'free' && data.plan !== u.plan){
+      // User has a paid Stripe subscription — upgrade their local account
+      const users = getUsers();
+      const idx = users.findIndex(x=>x.email===u.email);
+      if(idx !== -1){
+        users[idx].plan = data.plan;
+        saveUsers(users);
+        // Also update admin subs
+        const subs = getAdminSubs();
+        const si = subs.findIndex(s=>s.email===u.email);
+        if(si !== -1){ subs[si].plan = data.plan; subs[si].status = 'active'; saveAdminSubs(subs); }
+        showToast('✓ Plan upgraded to ' + data.plan.charAt(0).toUpperCase()+data.plan.slice(1) + '!');
+        return users[idx];
+      }
+    }
+  } catch(e){
+    // Silently fail — don't block login if upgrade check fails
+  }
+  return u;
 }
  
 function doAppLogout(){
@@ -1161,17 +1191,13 @@ async function generateNote(){
     const res = await fetch('/api/generate',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        prompt:prompt,
-        
-        
-      })
+      body:JSON.stringify({ prompt })
     });
     const data = await res.json();
-    const text = data.result;
+    const text = data.text;
  
     if(!text || data.error){
-      throw new Error(data.error?.message || 'No response from AI');
+      throw new Error(data.error || 'No response from AI');
     }
  
     // Track note usage
@@ -1206,11 +1232,10 @@ async function generateNote(){
     area.innerHTML = `<div class="output-box">
       <div style="color:#f87171;margin-bottom:12px;font-weight:500">⚠ Could not generate note</div>
       <div style="font-size:13px;color:var(--muted);line-height:1.6">
-        This is a demo version. To connect real AI generation:<br/>
-        1. Deploy this file to Vercel<br/>
-        2. Add your Anthropic API key as an environment variable<br/>
-        3. Add a small server function to proxy the API call<br/><br/>
-        Error: ${esc(err.message)}
+        ${err.message.includes('Failed to fetch') || err.message.includes('NetworkError')
+          ? 'Could not reach the AI service. Make sure the site is deployed to Vercel and your GEMINI_API_KEY environment variable is set in Vercel Settings → Environment Variables.'
+          : 'AI generation error: ' + esc(err.message)
+        }
       </div>
       <button class="btn btn-ghost btn-sm" style="margin-top:16px" onclick="goStep(4)">← Back to form</button>
     </div>`;
@@ -1277,13 +1302,25 @@ function newNote(){
 // ══════════════════════════════════════
 function upgradePro(){
   const link = localStorage.getItem('mn_stripe_pro');
-  if(link){ window.open(link,'_blank'); }
-  else { showToast('Stripe link not configured yet. Set it in the owner dashboard.','err'); }
+  if(link){
+    showToast('Redirecting to secure checkout…');
+    setTimeout(()=>window.open(link,'_blank'), 400);
+    // Show instruction so user knows what happens next
+    document.getElementById('outputArea') && (document.getElementById('outputArea').innerHTML = '');
+    const el = document.querySelector('.plans-body p:last-of-type');
+    if(el) el.innerHTML = '🔒 Payments secured by Stripe. <strong style="color:var(--gold2)">After paying, log out and log back in — your plan will upgrade automatically.</strong>';
+  } else {
+    showToast('Payment links not configured yet. Check back soon.','err');
+  }
 }
 function upgradeTeam(){
   const link = localStorage.getItem('mn_stripe_team');
-  if(link){ window.open(link,'_blank'); }
-  else { showToast('Stripe link not configured yet. Set it in the owner dashboard.','err'); }
+  if(link){
+    showToast('Redirecting to secure checkout…');
+    setTimeout(()=>window.open(link,'_blank'), 400);
+  } else {
+    showToast('Payment links not configured yet. Check back soon.','err');
+  }
 }
  
 // ══════════════════════════════════════
@@ -1311,7 +1348,7 @@ function initOwnerDash(){
   const who = sessionStorage.getItem('mn_owner_who')||'owner';
   document.getElementById('ownerUserLabel').textContent = who;
   const h=new Date().getHours();
-  document.getElementById('dashGreet').textContent=h<12?'Good morning, Tyler.':h<18?'Good afternoon, Tyler.':'Good evening, Tyler.';
+  document.getElementById('dashGreet').textContent=h<12?'Good morning.':h<18?'Good afternoon.':'Good evening.';
   document.getElementById('dashDate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   document.getElementById('ow_newuser').value=localStorage.getItem('mn_ow_user')||'owner';
   document.getElementById('ow_stripe_pro').value=localStorage.getItem('mn_stripe_pro')||'';
@@ -1471,4 +1508,3 @@ route();
 </script>
 </body>
 </html>
- 
